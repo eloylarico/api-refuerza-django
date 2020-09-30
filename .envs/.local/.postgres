@@ -1,0 +1,7 @@
+# PostgreSQL
+# ------------------------------------------------------------------------------
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=refuerzamas
+POSTGRES_USER=TTtssvpdwuuxbqTswjQnZaZMimxvcVIo
+POSTGRES_PASSWORD=HnESImI4LWEj1McugVMfdtghFBdrFeyTK8doF6ujF5YgBX23FraoMPEGUD2sgybb
