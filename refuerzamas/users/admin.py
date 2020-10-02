@@ -3,7 +3,7 @@ from django.contrib.admin import ModelAdmin
 from django.contrib.admin.decorators import register
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
-from refuerzamas.users.models import Docente, Estudiante, Genero, Institucion, Nivel
+from refuerzamas.users.models import Docente, Estudiante, Genero, HorarioLibreDocente, Institucion, Nivel
 
 
 @register(Estudiante)
@@ -25,8 +25,15 @@ class EstudianteAdmin(ModelAdmin):
     ]
 
 
+class HorarioLibreDocenteAdmin(admin.TabularInline):
+    list_display = ["docente", "hora_inicio", "hora_fin"]
+    model = HorarioLibreDocente
+    extra = 1
+
+
 @register(Docente)
 class DocenteAdmin(ModelAdmin):
+    inlines = [HorarioLibreDocenteAdmin]
     list_display = [
         "user",
         "breve_cv",

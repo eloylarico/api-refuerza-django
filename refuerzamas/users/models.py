@@ -1,5 +1,6 @@
 from ckeditor.fields import RichTextField
 from django.contrib.auth.models import AbstractUser, User
+from django.core.exceptions import ValidationError
 from django.db import models
 from model_utils.models import TimeStampedModel
 
@@ -21,7 +22,7 @@ class Nivel(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = RichTextField("Descripción", default="")
     orden = models.PositiveIntegerField(blank=True, null=True)
-    foto = models.ImageField("Icono del nivel", upload_to="usuarios/niveles", null=True)
+    foto = models.ImageField("Icono del nivel", upload_to="usuarios/niveles", null=True, blank=True)
 
     class Meta:
         verbose_name_plural = "Niveles"
@@ -47,7 +48,7 @@ class Institucion(models.Model):
         blank=True,
         help_text="Campo que referencia al nivel académico: Escolar, Preparatoria, Universidad",
     )
-    foto = models.ImageField("Foto de la institucion", upload_to="usuarios/institucion", null=True)
+    foto = models.ImageField("Foto de la institucion", upload_to="usuarios/institucion", null=True, blank=True)
 
     def __str__(self):
         return f"{self.nombre}"
@@ -102,6 +103,7 @@ class User(AbstractUser):
     TIPO_USUARIO_CHOICES = [
         ("ESTUDIANTE", "Estudiante"),
         ("PROFESOR", "Profesor"),
+        ("TUTOR", "Tutor"),
     ]
     avatar = models.ImageField("Foto de perfil", upload_to="users/avatar", null=True, blank=True)
     fecha_nacimiento = models.DateField("Fecha de nacimiento", null=True, blank=True)
@@ -132,8 +134,8 @@ class Estudiante(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.PROTECT, related_name="perfil_estudiante")
     institucion = models.ForeignKey(Institucion, on_delete=models.PROTECT, null=True, blank=True)
-    ciclo_universidad = models.IntegerField(blank=True, null=True, default=0)
-    grado_colegio = models.IntegerField(blank=True, null=True, default=0)
+    ciclo_universidad = models.PositiveIntegerField(blank=True, null=True, default=0)
+    grado_colegio = models.PositiveIntegerField(blank=True, null=True, default=0)
 
 
 class Docente(models.Model):
@@ -151,15 +153,17 @@ class HorarioLibreDocente(models.Model):
     docente = models.ForeignKey(
         Docente,
         on_delete=models.CASCADE,
-        null=True,
-        blank=True,
         verbose_name="Horarios Libres del Docente",
     )
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
+    hora_inicio = models.DateTimeField("Fecha y hora del inicio del horario libre")
+    hora_fin = models.DateTimeField("Fecha y hora del fin del horario libre")
+
+    def clean(self) -> None:
+        if self.hora_inicio > self.hora_fin:
+            raise ValidationError("La hora de inicio no puede ser mayor a la hora de fin")
 
     def __str__(self):
-        return f"{self.docente} [{self.start_time} - {self.end_time}]"
+        return f"{self.docente} [{self.hora_inicio} - {self.hora_fin}]"
 
     class Meta:
         verbose_name = "Horario Libre"

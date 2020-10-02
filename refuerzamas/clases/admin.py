@@ -4,7 +4,7 @@ from django.contrib.admin.decorators import register
 from django.db.models import QuerySet
 from django.http import HttpRequest
 
-from refuerzamas.clases.models import Clase, Curso, Estado, Reserva
+from refuerzamas.clases.models import Clase, Curso, Reserva
 
 
 @register(Reserva)
@@ -72,16 +72,17 @@ class ClasesAdmin(ModelAdmin):
         return Clase.clases
 
 
-@register(Estado)
-class EstadoAdmin(ModelAdmin):
-    list_display = [
-        "nombre",
-        "orden",
-    ]
-    search_fields = [
-        "nombre",
-    ]
-    ordering = ["-id"]
+#
+# @register(Estado)
+# class EstadoAdmin(ModelAdmin):
+#     list_display = [
+#         "nombre",
+#         "orden",
+#     ]
+#     search_fields = [
+#         "nombre",
+#     ]
+#     ordering = ["-id"]
 
 
 @register(Curso)

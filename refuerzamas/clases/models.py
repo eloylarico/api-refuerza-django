@@ -6,17 +6,18 @@ from refuerzamas.clases.managers import ClasesManager
 from refuerzamas.users.models import Docente, Estudiante, Nivel
 
 
-class Estado(models.Model):
-    # Campos
-    nombre = models.CharField(max_length=100)
-    orden = models.PositiveIntegerField(blank=True, null=True)
-
-    def __str__(self):
-        return self.nombre
-
-    class Meta:
-        verbose_name = "Estado de la Reserva"
-        verbose_name_plural = "Estados de la Reserva"
+# class Estado(models.Model):
+#     # Campos
+#     nombre = models.CharField(max_length=100)
+#     orden = models.PositiveIntegerField(blank=True, null=True)
+#
+#     def __str__(self):
+#         return self.nombre
+#
+#     class Meta:
+#         verbose_name = "Estado de la Reserva"
+#         verbose_name_plural = "Estados de la Reserva"
+#
 
 
 class Curso(models.Model):
@@ -41,7 +42,14 @@ class Curso(models.Model):
 
 class Reserva(models.Model):
     # Campos
-
+    ESTADO_CLASE_CHOICES = [
+        ("PENDIENTE", "Pendiente"),
+        ("ACTIVA", "Activa"),
+        ("TERMINADA", "Terminada"),
+        ("REPROGRAMADA", "Reprogramada"),
+        ("CANCELADA", "Cancelada"),
+        ("REPORTADA", "Reportada"),
+    ]
     estudiante = models.ForeignKey(Estudiante, on_delete=models.PROTECT, verbose_name="Estudiante")
     """ Se le coloca clases como related name, ya que si un profesor tiene reservas es porque esa reverva paso a ser clases """
     docente = models.ForeignKey(Docente, on_delete=models.PROTECT, null=True, blank=True, related_name="clases")
@@ -49,7 +57,8 @@ class Reserva(models.Model):
     hora_inicio = models.DateTimeField()
     hora_fin = models.DateTimeField()
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name="reservas")
-    estado = models.ForeignKey(Estado, on_delete=models.PROTECT, help_text="Estado de la reserva")
+    estado = models.CharField(max_length=100, choices=ESTADO_CLASE_CHOICES, blank=True, null=True)
+    # estado = models.ForeignKey(Estado, on_delete=models.PROTECT, help_text="Estado de la reserva")
 
     class Meta:
         verbose_name = "Reserva"
