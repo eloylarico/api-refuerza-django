@@ -181,6 +181,7 @@ class PerfilDocenteAdmin(ModelAdmin):
 @register(Estudiante)
 class PerfilEstudianteAdmin(ModelAdmin):
     readonly_fields = ["user"]
+    autocomplete_fields = ["tutor"]
     list_display = [
         "user",
     ]
@@ -204,8 +205,13 @@ class PerfilEstudianteAdmin(ModelAdmin):
 
 
 class TuteladosInlineAdmin(admin.TabularInline):
+    verbose_name = "Tutelado"
+    verbose_name_plural = "Tutelados"
+    readonly_fields = ["user", "institucion", "grado"]
     model = Estudiante
-    extra = 1
+    extra = 0
+    max_num = 0
+    can_delete = False
 
 
 @register(Tutor)

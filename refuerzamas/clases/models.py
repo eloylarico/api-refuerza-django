@@ -76,7 +76,7 @@ class Institucion(models.Model):
         verbose_name="Nivel",
         help_text="Campo que referencia al nivel académico: Escolar, Preparatoria, Universidad",
     )
-    foto = models.ImageField("Foto de la institucion", upload_to="usuarios/institucion", null=True)
+    foto = models.ImageField("Foto de la institucion", upload_to="usuarios/institucion", null=True, blank=True)
 
     def __str__(self):
         return f"{self.nombre}"
