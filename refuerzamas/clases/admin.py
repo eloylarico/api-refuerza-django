@@ -2,8 +2,13 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 from django.contrib.admin.decorators import register
+from django.contrib.admin import widgets as admin_widgets
 from django.contrib.auth.admin import UserAdmin
+from django.db import models
 from django.db.models import QuerySet
+
+# form django.contrib.
+from django.forms import widgets
 from django.http import HttpRequest
 
 from refuerzamas.clases.models import (
@@ -14,6 +19,7 @@ from refuerzamas.clases.models import (
     HorarioLibreDocente,
     Institucion,
     Materia,
+    MedioPago,
     Nivel,
     Docente,
     Estudiante,
@@ -124,26 +130,6 @@ class CustomUserAdmin(UserAdmin):
     )
 
 
-#
-# @register(Estudiante)
-# class EstudianteAdmin(ModelAdmin):
-#     list_display = [
-#         "nombres",
-#         "apellidos",
-#     ]
-#     list_filter = [
-#         "genero",
-#         "institucion",
-#     ]
-#     search_fields = [
-#         "nombres",
-#         "apellidos",
-#         "nickname",
-#         "email",
-#         "celular",
-#     ]
-
-
 class HorarioLibreDocenteInlineAdmin(admin.TabularInline):
     list_display = ["docente", "hora_inicio", "hora_fin"]
     model = HorarioLibreDocente
@@ -173,6 +159,7 @@ class PerfilDocenteAdmin(ModelAdmin):
         "user__observaciones",
         "user__direccion",
     ]
+    filter_horizontal = ["cursos"]
 
     def has_add_permission(self, request, obj=None) -> bool:
         return False
@@ -269,6 +256,16 @@ class GeneroAdmin(ModelAdmin):
     ]
 
 
+@register(MedioPago)
+class MedioPagoAdmin(ModelAdmin):
+    list_display = [
+        "nombre",
+    ]
+    search_fields = [
+        "nombre",
+    ]
+
+
 @register(Institucion)
 class InstitucionAdmin(ModelAdmin):
     list_display = [
@@ -293,11 +290,14 @@ class ReservaAdmin(ModelAdmin):
         "estado",
         "hora_inicio",
         "hora_fin",
-        "precio",
+        "precio_estudiante",
+        "precio_docente",
     ]
     autocomplete_fields = [
         "estudiante",
         "docente",
+        "curso",
+        "medio_pago",
     ]
     list_filter = [
         "estado",
@@ -312,11 +312,19 @@ class ReservaAdmin(ModelAdmin):
         "docente__user__last_name",
         "curso__materia__nombre",
     ]
+    # formfield_overrides = {
+    #     models.TimeField: {"widget": admin_widgets.AdminSplitDateTime(time_format="%H:%M")},
+    # }
+    # formfield_overrides = {
+    #     models.DateTimeField: {"widget": admin_widgets.AdminSplitDateTime(attrs={"time_format": "%H:%M"})},
+    # }
+    # formfield_overrides = {
+    #     models.DateTimeField: {"widget": widgets.SplitDateTimeWidget(time_format="%H:%M")},
+    # }
 
 
 @register(Clase)
 class ClasesAdmin(ModelAdmin):
-
     list_display = [
         "estudiante",
         "docente",
@@ -324,11 +332,14 @@ class ClasesAdmin(ModelAdmin):
         "estado",
         "hora_inicio",
         "hora_fin",
-        "precio",
+        "precio_estudiante",
+        "precio_docente",
     ]
     autocomplete_fields = [
         "estudiante",
         "docente",
+        "curso",
+        "medio_pago",
     ]
     list_filter = [
         "estado",
@@ -351,17 +362,6 @@ class ClasesAdmin(ModelAdmin):
         return Clase.clases
 
 
-# @register(Estado)
-# class EstadoAdmin(ModelAdmin):
-#     list_display = [
-#         "nombre",
-#         "orden",
-#     ]
-#     search_fields = [
-#         "nombre",
-#     ]
-
-
 class CursosInlineAdmin(admin.TabularInline):
     model = Curso
     extra = 1
@@ -375,4 +375,23 @@ class MateriaAdmin(ModelAdmin):
     ]
     search_fields = [
         "nombre",
+    ]
+
+
+@register(Curso)
+class CursoAdmin(ModelAdmin):
+    list_display = [
+        "materia",
+        "grado",
+    ]
+    list_filter = [
+        "materia",
+        "grado",
+        "grado__nivel",
+    ]
+    search_fields = [
+        "nombre",
+        "materia__nombre",
+        "grado__nombre",
+        "grado__nivel__nombre",
     ]

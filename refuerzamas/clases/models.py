@@ -4,23 +4,9 @@ from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from model_utils.models import TimeStampedModel
-
+from django.utils.translation import gettext_lazy as _
 from refuerzamas.ciudades.models import Ciudad
 from refuerzamas.clases.managers import ClasesManager
-
-
-# class Estado(models.Model):
-#     # Campos
-#     nombre = models.CharField(max_length=100)
-#     orden = models.PositiveIntegerField(blank=True, null=True)
-#
-#     def __str__(self):
-#         return self.nombre
-#
-#     class Meta:
-#         verbose_name = "Estado de la Reserva"
-#         verbose_name_plural = "Estados de la Reserva"
-#
 
 
 class Genero(models.Model):
@@ -65,7 +51,7 @@ class Institucion(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        verbose_name="Ciudad",
+        verbose_name=_("Ciudad"),
         help_text="Campo que referencia a la ciudad del doctor en la aplicación",
     )
     nivel = models.ForeignKey(
@@ -95,6 +81,26 @@ class GradoInstruccion(models.Model):
     class Meta:
         verbose_name = "Grado de instrucción"
         verbose_name_plural = "Grados de instrucción"
+
+
+class Materia(models.Model):
+    nombre = models.CharField(max_length=100)
+    foto = models.ImageField("Ícono del curso", upload_to="clases/cursos/fotos", null=True)
+
+    def __str__(self):
+        return self.nombre
+
+
+class Curso(models.Model):
+    materia = models.ForeignKey(Materia, on_delete=models.PROTECT)
+    grado = models.ForeignKey(
+        Grado,
+        on_delete=models.PROTECT,
+        help_text="Campo que referencia al grado(1° de primaria, 2° de Secundaria, etc) del estudiante",
+    )
+
+    def __str__(self):
+        return f"{self.materia} - {self.grado}"
 
 
 class User(AbstractUser):
@@ -233,79 +239,6 @@ def create_user_profile(sender, instance, created, **kwargs):
         Docente.objects.get_or_create(user=instance)
 
 
-# @receiver(post_save, sender=User)
-# def save_user_profile(sender, instance, **kwargs):
-#     instance.profile.save()
-
-
-#
-# class BaseUserAplicacion(TimeStampedModel):
-#     """Usuario base para las aplicaciones de Refuerza+ (estudiante, docente)."""
-#
-#     nombres = models.CharField("Nombres", blank=True, null=True, max_length=255)
-#     apellidos = models.CharField("Apellidos", blank=True, null=True, max_length=255)
-#     nickname = models.CharField(
-#         blank=True,
-#         null=True,
-#         max_length=255,
-#         help_text="Nombre que se le mostrará al demas de usuarios",
-#     )
-#     avatar = models.ImageField("Foto de perfil", upload_to="users/avatar", null=True, blank=True)
-#     fecha_nacimiento = models.DateField("Fecha de nacimiento", null=True, blank=True)
-#     genero = models.ForeignKey(Genero, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Género")
-#     celular = models.CharField(max_length=9, null=True, blank=True)
-#     usuario_aplicacion = models.CharField(
-#         "Nombre de usuario",
-#         max_length=50,
-#         unique=True,
-#         help_text="Nombre de usuario con el cual el usuario entrará a la aplicación",
-#     )
-#     codigo_aplicacion = models.CharField(
-#         "Código de usuario", max_length=15, help_text="Código con el cual el usuario entrará a la aplicación"
-#     )
-#     token = models.CharField(
-#         "Token de la aplicación",
-#         max_length=50,
-#         unique=True,
-#         help_text="Token con que el usuario se autenticará en la aplicación",
-#     )
-#     email = models.EmailField("Correo electrónico", unique=True)
-#     ciudad = models.ForeignKey(
-#         Ciudad,
-#         on_delete=models.CASCADE,
-#         null=True,
-#         blank=True,
-#         help_text="Campo que referencia a la ciudad del usuario en la aplicación",
-#     )
-#     direccion = models.CharField("Dirección", max_length=255, null=True, blank=True)
-#     activo = models.BooleanField(help_text="Solo los usuarios activos podran entrar a la aplicación", default=True)
-#     observaciones = models.TextField(blank=True, null=True)
-#
-#     @property
-#     def nombre_completo(self):
-#         return f"{self.nombres} {self.apellidos}"
-#
-#     @property
-#     def is_active(self):
-#         return self.activo
-#
-#     def __str__(self):
-#         return self.nombre_completo
-#
-#     class Meta:
-#         abstract = True
-
-#
-# class Estudiante(BaseUserAplicacion):
-#     """
-#     Modelo Estudiante que tiene todos los campos de BaseUserAplicación mas los que se declaran acá
-#     """
-#
-#     # user = models.OneToOneField(User, on_delete=models.PROTECT, related_name="perfil_estudiante")
-#     institucion = models.ForeignKey(Institucion, on_delete=models.PROTECT, null=True, blank=True)
-#     grado = models.ForeignKey(Grado, blank=True, null=True, on_delete=models.PROTECT)
-
-
 class Tutor(models.Model):
 
     user = models.OneToOneField(User, verbose_name="Tutor", on_delete=models.CASCADE, related_name="perfil_tutor")
@@ -370,6 +303,7 @@ class Docente(models.Model):
     docencia = models.BooleanField(blank=True, null=True)
     titulo = models.BooleanField(blank=True, null=True)
     filosofia = models.TextField(null=True, blank=True)
+    cursos = models.ManyToManyField(Curso, related_name="cursos")
 
     def __str__(self):
         return str(self.user)
@@ -401,24 +335,16 @@ class HorarioLibreDocente(models.Model):
         verbose_name_plural = "Horarios Libres"
 
 
-class Materia(models.Model):
-    nombre = models.CharField(max_length=100)
-    foto = models.ImageField("Ícono del curso", upload_to="clases/cursos/fotos", null=True)
+class MedioPago(models.Model):
+    # Campos
+    nombre = models.CharField(max_length=255, unique=True)
+
+    class Meta:
+        verbose_name = "Medio de pago"
+        verbose_name_plural = "Medios de pago"
 
     def __str__(self):
         return self.nombre
-
-
-class Curso(models.Model):
-    materia = models.ForeignKey(Materia, on_delete=models.PROTECT)
-    grado = models.ForeignKey(
-        Grado,
-        on_delete=models.PROTECT,
-        help_text="Campo que referencia al grado(1° de primaria, 2° de Secundaria, etc) del estudiante",
-    )
-
-    def __str__(self):
-        return f"{self.materia} - {self.grado}"
 
 
 class Reserva(models.Model):
@@ -443,12 +369,18 @@ class Reserva(models.Model):
     estudiante = models.ForeignKey(Estudiante, on_delete=models.PROTECT, verbose_name="Estudiante")
     """ Se le coloca clases como related name, ya que si un profesor tiene reservas es porque esa reverva paso a ser clases """
     docente = models.ForeignKey(Docente, on_delete=models.PROTECT, null=True, blank=True, related_name="clases")
-    precio = models.FloatField("Precio al Estudiante")
+    precio_estudiante = models.FloatField("Precio al Estudiante")
+    precio_docente = models.FloatField("Precio al profesor")
+    medio_pago = models.ForeignKey(
+        MedioPago, verbose_name="Medio de pago", on_delete=models.CASCADE, related_name="medio_pago", null=True
+    )
     hora_inicio = models.DateTimeField()
     hora_fin = models.DateTimeField()
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name="reservas")
     estado = models.CharField(max_length=100, choices=ESTADO_CLASE_CHOICES, default=PENDIENTE)
     motivo_reporte = models.TextField(blank=True, null=True)
+    observaciones = models.TextField(blank=True, null=True)
+
     # estado = models.ForeignKey(Estado, on_delete=models.PROTECT, help_text="Estado de la reserva")
 
     class Meta:
