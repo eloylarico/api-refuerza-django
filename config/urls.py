@@ -6,6 +6,9 @@ from django.views import defaults as default_views
 from django.views.generic import TemplateView
 from rest_framework.authtoken.views import obtain_auth_token
 
+#Views
+from refuerzamas.clases.api.views import UserDetailView
+
 urlpatterns = [
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
@@ -16,6 +19,7 @@ urlpatterns = [
 urlpatterns += [
     # API base url
     path("api/", include("config.api_router")),
+    path("api/auth/user/", UserDetailView.as_view()),
     # DRF auth token
     path("auth-token/", obtain_auth_token),
 ]
