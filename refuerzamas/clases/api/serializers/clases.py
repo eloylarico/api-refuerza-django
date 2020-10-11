@@ -5,7 +5,7 @@ from rest_framework import serializers
 from refuerzamas.clases.models import Clase
 
 #Serializer
-from refuerzamas.clases.serializers import DocenteModelSerializer
+from refuerzamas.clases.api.serializers import DocenteModelSerializer
 
 class ClaseUserModelSerializer(serializers.ModelSerializer):
 

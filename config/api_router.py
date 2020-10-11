@@ -3,7 +3,12 @@ from rest_framework.routers import DefaultRouter, SimpleRouter
 
 # Genero
 # from refuerzamas.clases.api.views import DocenteViewSet
-from refuerzamas.clases.api.views import GenerosView, NivelesView, NivelesGradoView, ClasesUserViewSet, DocenteViewSet
+from refuerzamas.clases.api.views import (
+    GenerosView,
+    NivelesGradoView,
+    ClasesUserViewSet,
+    DocenteViewSet,
+)
 
 
 if settings.DEBUG:
@@ -12,12 +17,11 @@ else:
     router = SimpleRouter()
 
 # router.register("docentes", DocenteViewSet)
-router.register('generos', GenerosView)
-router.register('niveles', NivelesView)
-router.register('niveles/(?P<id>[0-9]+)/grados', NivelesGradoView)
-router.register(r'clases',ClasesUserViewSet)
-router.register(r'docentes', DocenteViewSet)
+router.register(r"generos", GenerosView, basename="generos")
+router.register(r"niveles", NivelesGradoView, basename="niveles")
+router.register(r"clases", ClasesUserViewSet, basename="clases")
 
+router.register(r"docentes", DocenteViewSet, basename="docentes")
 
 
 app_name = "api"

@@ -1,30 +1,28 @@
-#Rest
+# Rest
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
-from rest_framework.generics import get_object_or_404
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
-#Serialzier
-from refuerzamas.clases.serializers import NivelesModelSerializer, GradoModelSerializer
+# Serialzier
+from refuerzamas.clases.api.serializers import (
+    NivelesModelSerializer,
+    GradoModelSerializer,
+)
 
-#Model
+# Model
 from refuerzamas.clases.models import Nivel, Grado
-
-class NivelesView(viewsets.ReadOnlyModelViewSet):
-	serializer_class = NivelesModelSerializer
-	queryset = Nivel.objects.all()
-	permission_classes = [AllowAny]
 
 
 class NivelesGradoView(viewsets.ReadOnlyModelViewSet):
 
-	serializer_class = GradoModelSerializer
-	queryset = Grado.objects.all()
-	permission_classes = [AllowAny]
+    serializer_class = NivelesModelSerializer
+    queryset = Nivel.objects.all()
+    permission_classes = [AllowAny]
 
-	def dispatch(self, request, *args, **kwargs):
-		id = kwargs['id']
-		self.nivel = get_object_or_404(Nivel, id = id)
-		return super(NivelesGradoView, self).dispatch(request, *args, **kwargs)
-
-	def get_queryset(self):
-		return self.queryset.filter(nivel=self.nivel)
+    @action(detail=True, methods=["get"])
+    def grados(self, request, *args, **kwargs):
+        nivel = self.get_object()
+        queryset = Grado.objects.filter(nivel=nivel)
+        serializer = GradoModelSerializer(queryset, many=True)
+        return Response(serializer.data)
