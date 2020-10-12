@@ -247,6 +247,10 @@ class Tutor(models.Model):
         verbose_name = "Perfil del tutor"
         verbose_name_plural = "Perfiles de los tutores"
 
+    def get_tutelados__user(self):
+        ids_users_tutelados = self.tutelados.values_list("user_id", flat=True)
+        return User.objects.filter(id__in=ids_users_tutelados)
+
     def __str__(self):
         return str(self.user)
 
@@ -258,7 +262,7 @@ class Estudiante(models.Model):
     )
     institucion = models.ForeignKey(Institucion, on_delete=models.PROTECT, null=True, blank=True)
     grado = models.ForeignKey(Grado, blank=True, null=True, on_delete=models.PROTECT)
-    tutor = models.ForeignKey(Tutor, blank=True, null=True, on_delete=models.PROTECT)
+    tutor = models.ForeignKey(Tutor, blank=True, null=True, on_delete=models.PROTECT, related_name="tutelados")
 
     class Meta:
         verbose_name = "Perfil del estudiante"
@@ -387,6 +391,9 @@ class Reserva(models.Model):
         verbose_name = "Reserva"
         verbose_name_plural = "Reservas"
 
+    def get_estudiante__user(self) -> User:
+        return self.estudiante.user
+
     def clean(self) -> None:
         # Comprobrando horas de inicio y fin
         if self.hora_inicio > self.hora_fin:
@@ -407,6 +414,9 @@ class Clase(Reserva):
     """
 
     clases = ClasesManager()
+
+    def get_docente__user(self) -> User:
+        return self.docente.user
 
     class Meta:
         proxy = True

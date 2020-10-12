@@ -68,12 +68,10 @@ class GradoInstruccionModelSerializer(serializers.ModelSerializer):
 
 # Serializers User
 class DocenteModelSerializer(serializers.ModelSerializer):
-
+    # user =
     grado_instruccion = GradoInstruccionModelSerializer(required=False, read_only=True)
-
-    grado_instruccion_id = serializers.IntegerField(
-        required=False, write_only=True, allow_null=True
-    )
+    grado_instruccion_id = serializers.IntegerField(required=False, write_only=True, allow_null=True)
+    # TODO Añadir cursos serializer
 
     class Meta:
         model = Docente
@@ -96,20 +94,54 @@ class DocenteModelSerializer(serializers.ModelSerializer):
 class TutorModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tutor
+        fields = "__all__"
+
+
+class UserTutorModelSerializer(serializers.ModelSerializer):
+    genero = GenerosSerializer(required=False, read_only=True)
+    perfil_tutor = TutorModelSerializer(required=False)
+
+    class Meta:
+        model = User
+        fields = (
+            "username",
+            "nickname",
+            "tipo_usuario",
+            "avatar",
+            "fecha_nacimiento",
+            "celular",
+            "email",
+            "direccion",
+            "observaciones",
+            "genero",
+            "perfil_tutor",
+        )
+        read_only_fields = (
+            "email",
+            "username",
+            "tipo_usuario",
+            "fecha_nacimiento",
+            "genero",
+            "perfil_tutor",
+        )
 
 
 class EstudianteModelSerializer(serializers.ModelSerializer):
+    # class TutorModelSerializer(serializers.ModelSerializer):
+    #     """
+    #     Se colocó este serializer dentro de EstudianteModelSerializer porque se
+    #     """
+    #
+    #     class Meta:
+    #         model = Tutor
+    #         fields = "__all__"
 
     institucion = InstitucionModelSerializer(required=False, read_only=True)
     grado = GradoModelSerializer(required=False, read_only=True)
-    tutor = TutorModelSerializer(required=False, read_only=True)
+    tutor = UserTutorModelSerializer(required=False, read_only=True)
 
-    institucion_id = serializers.IntegerField(
-        required=False, write_only=True, allow_null=True
-    )
-    grado_id = serializers.IntegerField(
-        required=False, write_only=True, allow_null=True
-    )
+    institucion_id = serializers.IntegerField(required=False, write_only=True, allow_null=True)
+    grado_id = serializers.IntegerField(required=False, write_only=True, allow_null=True)
 
     class Meta:
         model = Estudiante
@@ -153,19 +185,13 @@ class UserEstudianteModelSerializer(serializers.ModelSerializer):
         instance.username = validated_data.get("username", instance.username)
         instance.nickname = validated_data.get("nickname", instance.nickname)
         instance.avatar = validated_data.get("avatar", instance.avatar)
-        instance.fecha_nacimiento = validated_data.get(
-            "fecha_nacimiento", instance.fecha_nacimiento
-        )
+        instance.fecha_nacimiento = validated_data.get("fecha_nacimiento", instance.fecha_nacimiento)
         instance.celular = validated_data.get("celular", instance.celular)
         instance.direccion = validated_data.get("direccion", instance.direccion)
-        instance.observaciones = validated_data.get(
-            "observaciones", instance.observaciones
-        )
+        instance.observaciones = validated_data.get("observaciones", instance.observaciones)
 
         if data:
-            estudiante.institucion_id = data.get(
-                "institucion_id", estudiante.institucion_id
-            )
+            estudiante.institucion_id = data.get("institucion_id", estudiante.institucion_id)
             estudiante.grado_id = data.get("grado_id", estudiante.grado_id)
             estudiante.save()
         return instance
@@ -207,23 +233,15 @@ class UserDocenteModelSerializer(serializers.ModelSerializer):
         instance.username = validated_data.get("username", instance.username)
         instance.nickname = validated_data.get("nickname", instance.nickname)
         instance.avatar = validated_data.get("avatar", instance.avatar)
-        instance.fecha_nacimiento = validated_data.get(
-            "fecha_nacimiento", instance.fecha_nacimiento
-        )
+        instance.fecha_nacimiento = validated_data.get("fecha_nacimiento", instance.fecha_nacimiento)
         instance.celular = validated_data.get("celular", instance.celular)
         instance.direccion = validated_data.get("direccion", instance.direccion)
-        instance.observaciones = validated_data.get(
-            "observaciones", instance.observaciones
-        )
+        instance.observaciones = validated_data.get("observaciones", instance.observaciones)
 
         if data:
 
-            docente.grado_instruccion_id = data.get(
-                "grado_instruccion_id", docente.grado_instruccion_id
-            )
-            docente.herramientas_videollamada = data.get(
-                "herramientas_videollamada", docente.herramientas_videollamada
-            )
+            docente.grado_instruccion_id = data.get("grado_instruccion_id", docente.grado_instruccion_id)
+            docente.herramientas_videollamada = data.get("herramientas_videollamada", docente.herramientas_videollamada)
             docente.entrevista = data.get("entrevista", docente.entrevista)
             docente.confiabilidad = data.get("confiabilidad", docente.confiabilidad)
             docente.señal = data.get("señal", docente.señal)
@@ -234,32 +252,3 @@ class UserDocenteModelSerializer(serializers.ModelSerializer):
             docente.filosofia = data.get("filosofia", docente.filosofia)
             docente.save()
         return instance
-
-
-class UserTutorModelSerializer(serializers.ModelSerializer):
-    genero = GenerosSerializer(required=False, read_only=True)
-    perfil_tutor = TutorModelSerializer(required=False)
-
-    class Meta:
-        model = User
-        fields = (
-            "username",
-            "nickname",
-            "tipo_usuario",
-            "avatar",
-            "fecha_nacimiento",
-            "celular",
-            "email",
-            "direccion",
-            "observaciones",
-            "genero",
-            "perfil_tutor",
-        )
-        read_only_fields = (
-            "email",
-            "username",
-            "tipo_usuario",
-            "fecha_nacimiento",
-            "genero",
-            "perfil_tutor",
-        )

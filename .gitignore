@@ -333,3 +333,4 @@ refuerzamas/media/
 !.envs/.local/
 .envs/.production
 *.sqlite3
+.idea
