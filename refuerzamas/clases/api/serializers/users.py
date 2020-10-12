@@ -201,11 +201,13 @@ class UserDocenteModelSerializer(serializers.ModelSerializer):
 
     genero = GenerosSerializer(required=False, read_only=True)
     perfil_docente = DocenteModelSerializer(required=False)
+    display_name = serializers.CharField(read_only=True)
 
     class Meta:
         model = User
         fields = (
             "username",
+            "display_name",
             "nickname",
             "tipo_usuario",
             "avatar",

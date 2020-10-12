@@ -21,7 +21,7 @@ urlpatterns += [
     path("api/", include("config.api_router")),
     path("api/auth/user/", UserDetailView.as_view()),
     # DRF auth token
-    path("auth-token/", obtain_auth_token),
+    path("api/auth-token/", obtain_auth_token),
 ]
 
 if settings.DEBUG:

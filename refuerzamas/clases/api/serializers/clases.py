@@ -13,7 +13,7 @@ class ClaseUserModelSerializer(serializers.ModelSerializer):
     # docente = DocenteModelSerializer()
     docente = UserDocenteModelSerializer(source="get_docente__user", read_only=True)
     user = UserEstudianteModelSerializer(source="get_estudiante__user", read_only=True)
-    # TODO Añadir curso
+    # gi Añadir curso
 
     class Meta:
         model = Clase

@@ -150,8 +150,9 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ["username"]
 
     @property
-    def nombre_completo(self):
-        return self.get_full_name()
+    def display_name(self):
+        # if self.get_full_name() != "":
+        return self.get_full_name() or self.username or self.email
 
     def clean(self) -> None:
         if (self.is_staff or self.is_superuser) and self.tipo_usuario is not None:
@@ -354,16 +355,16 @@ class MedioPago(models.Model):
 class Reserva(models.Model):
     # Choices
 
-    PENDIENTE = "PENDIENTE"
-    ACTIVA = "ACTIVA"
-    TERMINADA = "TERMINADA"
-    REPROGRAMADA = "REPROGRAMADA"
-    CANCELADA = "CANCELADA"
-    REPORTADA = "REPORTADA"
+    PENDIENTE = "Pendiente"
+    ACTIVA = "Activo"
+    TERMINADA = "Terminada"
+    REPROGRAMADA = "Reprogramada"
+    CANCELADA = "Cancelada"
+    REPORTADA = "Reportada"
 
     ESTADO_CLASE_CHOICES = [
         (PENDIENTE, "Pendiente"),
-        (ACTIVA, "Activa"),
+        (ACTIVA, "Activo"),
         (TERMINADA, "Terminada"),
         (REPROGRAMADA, "Reprogramada"),
         (CANCELADA, "Cancelada"),
@@ -400,8 +401,10 @@ class Reserva(models.Model):
             raise ValidationError("La hora de inicio no puede ser mayor a la hora de fin")
 
         # Comprobrando estado, solo el estado pendiente puede estar sin profesor
+        if self.estado == self.PENDIENTE and self.docente is not None:
+            raise ValidationError(f"Una reserva {self.PENDIENTE} no puede tener un docente asignado.")
         if self.estado != self.PENDIENTE and self.docente is None:
-            raise ValidationError("Solo una reserva sin profesor puede estar pendiente ")
+            raise ValidationError("Para que la reserva pase a este estado necesita de un docente")
 
     def __str__(self):
         return f"Reserva de {self.estudiante} | Curso: + {self.curso} | Estado: {self.estado}"
