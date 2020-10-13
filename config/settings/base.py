@@ -10,7 +10,7 @@ ROOT_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 APPS_DIR = ROOT_DIR / "refuerzamas"
 env = environ.Env()
 
-READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
+READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=True)
 if READ_DOT_ENV_FILE:
     # OS environment variables take precedence over variables from .env
     env.read_env(str(ROOT_DIR / ".env"))
@@ -250,3 +250,13 @@ CORS_URLS_REGEX = r"^/api/.*$"
 CORS_ALLOW_ALL_ORIGINS = True
 # Your stuff...
 # ------------------------------------------------------------------------------
+
+# Pusher Channels
+PUSHER_CHANNELS_APP_ID = env.str("PUSHER_CHANNELS_APP_ID")
+PUSHER_CHANNELS_KEY = env.str("PUSHER_CHANNELS_KEY")
+PUSHER_CHANNELS_SECRET = env.str("PUSHER_CHANNELS_SECRET")
+PUSHER_CHANNELS_CLUSTER = env.str("PUSHER_CHANNELS_CLUSTER", default="us2")
+
+# Pusher Beams
+PUSHER_BEAMS_INSTANCE_ID = env.str("PUSHER_BEAMS_INSTANCE_ID")
+PUSHER_BEAMS_SECRET_KEY = env.str("PUSHER_BEAMS_SECRET_KEY")

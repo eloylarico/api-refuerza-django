@@ -4,6 +4,7 @@ from rest_framework import serializers
 # Model
 from refuerzamas.clases.models import (
     Chat,
+    Mensaje,
     User,
     Estudiante,
     Tutor,
@@ -321,3 +322,11 @@ class ChatModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chat
         exclude = ["activo"]
+
+
+class MensajeModelSerializer(serializers.ModelSerializer):
+    user = UserEstudianteModelSerializer(read_only=True)
+
+    class Meta:
+        model = Mensaje
+        fields = "__all__"
