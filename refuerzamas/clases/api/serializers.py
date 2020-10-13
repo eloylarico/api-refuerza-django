@@ -103,7 +103,7 @@ class DocenteModelSerializer(serializers.ModelSerializer):
     grado_instruccion_id = serializers.IntegerField(
         required=False, write_only=True, allow_null=True
     )
-    cursos = CursoModelSerializer(required=False, read_only=True)
+    cursos = CursoModelSerializer(required=False, read_only=True, many=True)
 
     class Meta:
         model = Docente
