@@ -2,7 +2,7 @@
 from rest_framework import mixins, viewsets
 
 # Serializer
-from refuerzamas.clases.api.serializers import ClaseUserModelSerializer
+from refuerzamas.clases.api.serializers import ClaseModelSerializer
 
 # Model
 from refuerzamas.clases.models import Clase, User
@@ -10,7 +10,7 @@ from refuerzamas.clases.models import Clase, User
 
 class ClasesUserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
-    serializer_class = ClaseUserModelSerializer
+    serializer_class = ClaseModelSerializer
 
     def get_queryset(self):
         if self.request.user.tipo_usuario == User.ESTUDIANTE:

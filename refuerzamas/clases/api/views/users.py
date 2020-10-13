@@ -31,7 +31,9 @@ class UserDetailView(RetrieveUpdateAPIView):
             return UserTutorModelSerializer
 
 
-class DocenteViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class DocenteViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
 
     serializer_class = UserDocenteModelSerializer
     queryset = User.objects.all()

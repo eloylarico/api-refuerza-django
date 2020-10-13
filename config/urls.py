@@ -6,7 +6,7 @@ from django.views import defaults as default_views
 from django.views.generic import TemplateView
 from rest_framework.authtoken.views import obtain_auth_token
 
-#Views
+# Views
 from refuerzamas.clases.api.views import UserDetailView
 
 urlpatterns = [
@@ -19,7 +19,7 @@ urlpatterns = [
 urlpatterns += [
     # API base url
     path("api/", include("config.api_router")),
-    path("api/auth/user/", UserDetailView.as_view()),
+    path("api/auth/user/", UserDetailView.as_view(), name="user"),
     # DRF auth token
     path("api/auth-token/", obtain_auth_token),
 ]

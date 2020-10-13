@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 # Serialzier
 from refuerzamas.clases.api.serializers import (
-    NivelesModelSerializer,
+    NivelModelSerializer,
     GradoModelSerializer,
 )
 
@@ -16,7 +16,7 @@ from refuerzamas.clases.models import Nivel, Grado
 
 class NivelesGradoView(viewsets.ReadOnlyModelViewSet):
 
-    serializer_class = NivelesModelSerializer
+    serializer_class = NivelModelSerializer
     queryset = Nivel.objects.all()
     permission_classes = [AllowAny]
 
