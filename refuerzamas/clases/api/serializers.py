@@ -16,7 +16,7 @@ from refuerzamas.clases.models import (
     Curso,
     Materia,
     Grado,
-    Nivel,
+    Nivel, Mensaje,
 )
 from refuerzamas.ciudades.models import Pais, Region, Ciudad
 
@@ -311,12 +311,22 @@ class ClaseModelSerializer(serializers.ModelSerializer):
         )
 
 
-class ChatModelSerializer(serializers.ModelSerializer):
+class MensajeModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Mensaje
+        fields = '__all__'
 
-    # docente = DocenteModelSerializer()
-    docente = UserDocenteModelSerializer(source="get_docente__user", read_only=True)
-    user = UserEstudianteModelSerializer(source="get_estudiante__user", read_only=True)
-    curso = CursoModelSerializer(required=False, read_only=True)
+
+class UserModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['display_name']
+
+
+class ChatModelSerializer(serializers.ModelSerializer):
+    ultimo_mensaje = MensajeModelSerializer(read_only=True)
+    user1 = UserModelSerializer(read_only=True)
+    user2 = UserModelSerializer(read_only=True)
 
     class Meta:
         model = Chat

@@ -7,7 +7,7 @@ from refuerzamas.clases.api.views import (
     GenerosView,
     NivelesGradoView,
     ClasesUserViewSet,
-    DocenteViewSet,
+    DocenteViewSet, ChatViewSet,
 )
 
 
@@ -22,6 +22,7 @@ router.register(r"niveles", NivelesGradoView, basename="niveles")
 router.register(r"clases", ClasesUserViewSet, basename="clases")
 
 router.register(r"docentes", DocenteViewSet, basename="docentes")
+router.register(r"chats", ChatViewSet, basename="chats")
 
 
 app_name = "api"

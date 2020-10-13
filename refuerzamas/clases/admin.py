@@ -25,7 +25,7 @@ from refuerzamas.clases.models import (
     Estudiante,
     Tutor,
     Reserva,
-    User,
+    User, Chat, Mensaje,
 )
 
 
@@ -394,4 +394,20 @@ class CursoAdmin(ModelAdmin):
         "materia__nombre",
         "grado__nombre",
         "grado__nivel__nombre",
+    ]
+
+
+@register(Chat)
+class ChatAdmin(ModelAdmin):
+    list_display = [
+        "user1",
+        "user2",
+    ]
+
+@register(Mensaje)
+class MensajeAdmin(ModelAdmin):
+    list_display = [
+        "user",
+        "chat",
+        "texto",
     ]

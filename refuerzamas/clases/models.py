@@ -149,6 +149,18 @@ class User(AbstractUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
 
+    def get_chats(self):
+        if self.tipo_usuario == User.ESTUDIANTE:
+            return Chat.objects.filter(user2=self)
+
+        elif self.tipo_usuario == User.TUTOR:
+            tutelados_user_id = self.perfil_tutor.tutelados.values_list('user_id', flat=True)
+            chats = Chat.objects.filter(user2_id__in=tutelados_user_id) | Chat.objects.filter(user2=self)
+            return chats
+
+        elif self.tipo_usuario == User.DOCENTE:
+            return Chat.objects.filter(user1=self)
+
     @property
     def display_name(self):
         # if self.get_full_name() != "":
@@ -432,21 +444,28 @@ class Chat(models.Model):
     Un chat entre 2 usuarios, por conveniencia colocaremos como user1 siempre al docente
     """
 
-    user1 = models.ForeignKey(User, verbose_name="Docente", on_delete=models.SET_NULL)
-    user2 = models.ForeignKey(User, verbose_name="Tutor o Estudiante", on_delete=models.SET_NULL)
+    user1 = models.ForeignKey(User, verbose_name="Docente", on_delete=models.PROTECT, related_name="chats_docente")
+    user2 = models.ForeignKey(User, verbose_name="Tutor o Estudiante", on_delete=models.PROTECT, related_name="chats_estudiante_o_tutor")
     activo = models.BooleanField(verbose_name="Si esta activado, se le mostrará a los usuarios este chat", default=True)
 
+    @property
+    def ultimo_mensaje(self):
+        return self.mensajes.last()
+
     def clean(self) -> None:
-        # ToDO VALIDAR USER1 Y USER2
-        pass
+        if self.user1.tipo_usuario != User.DOCENTE:
+            raise ValidationError("El usuario 1 debe ser del tipo DOCENTE")
+
+        if self.user2.tipo_usuario != User.ESTUDIANTE and self.user2.tipo_usuario != User.TUTOR:
+            raise ValidationError("El usuario 2 debe ser del tipo ESTUDIANTE O TUTOR")
 
     def __str__(self):
         return f"Docente: {self.user1} - Tutor/Estudiante: {self.user2}"
 
 
 class Mensaje(models.Model):
-    user = models.ForeignKey(User, verbose_name="Usuario", on_delete=models.SET_NULL)
-    chat = models.ForeignKey(Chat, verbose_name="Chat", on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name="Usuario", on_delete=models.PROTECT, related_name="mensajes")
+    chat = models.ForeignKey(Chat, verbose_name="Chat", on_delete=models.CASCADE, related_name="mensajes")
     texto = models.TextField(blank=True, null=True)
     archivo = models.FileField(upload_to="clases/mensajes/archivos", blank=True, null=True)
     fecha = models.DateTimeField("Fecha y hora del mensaje", auto_now_add=True)
@@ -462,5 +481,5 @@ class Mensaje(models.Model):
         if self.texto is None and self.archivo is None:
             raise ValidationError("Debes enviar al menos un texto o un archivo para que sea un mensaje válido.")
 
-        if self.user is not self.chat.user1 or self.user is not self.chat.user2:
+        if  self.user_id != self.chat.user1_id and self.user_id != self.chat.user2_id:
             raise ValidationError("El usuario que envía el mensaje no forma parte de este chat.")
