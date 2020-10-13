@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 # Model
 from refuerzamas.clases.models import (
+    Chat,
     User,
     Estudiante,
     Tutor,
@@ -100,9 +101,7 @@ class GradoInstruccionModelSerializer(serializers.ModelSerializer):
 class DocenteModelSerializer(serializers.ModelSerializer):
     # user =
     grado_instruccion = GradoInstruccionModelSerializer(required=False, read_only=True)
-    grado_instruccion_id = serializers.IntegerField(
-        required=False, write_only=True, allow_null=True
-    )
+    grado_instruccion_id = serializers.IntegerField(required=False, write_only=True, allow_null=True)
     cursos = CursoModelSerializer(required=False, read_only=True, many=True)
 
     class Meta:
@@ -172,12 +171,8 @@ class EstudianteModelSerializer(serializers.ModelSerializer):
     grado = GradoModelSerializer(required=False, read_only=True)
     tutor = UserTutorModelSerializer(required=False, read_only=True)
 
-    institucion_id = serializers.IntegerField(
-        required=False, write_only=True, allow_null=True
-    )
-    grado_id = serializers.IntegerField(
-        required=False, write_only=True, allow_null=True
-    )
+    institucion_id = serializers.IntegerField(required=False, write_only=True, allow_null=True)
+    grado_id = serializers.IntegerField(required=False, write_only=True, allow_null=True)
 
     class Meta:
         model = Estudiante
@@ -221,19 +216,13 @@ class UserEstudianteModelSerializer(serializers.ModelSerializer):
         instance.username = validated_data.get("username", instance.username)
         instance.nickname = validated_data.get("nickname", instance.nickname)
         instance.avatar = validated_data.get("avatar", instance.avatar)
-        instance.fecha_nacimiento = validated_data.get(
-            "fecha_nacimiento", instance.fecha_nacimiento
-        )
+        instance.fecha_nacimiento = validated_data.get("fecha_nacimiento", instance.fecha_nacimiento)
         instance.celular = validated_data.get("celular", instance.celular)
         instance.direccion = validated_data.get("direccion", instance.direccion)
-        instance.observaciones = validated_data.get(
-            "observaciones", instance.observaciones
-        )
+        instance.observaciones = validated_data.get("observaciones", instance.observaciones)
 
         if data:
-            estudiante.institucion_id = data.get(
-                "institucion_id", estudiante.institucion_id
-            )
+            estudiante.institucion_id = data.get("institucion_id", estudiante.institucion_id)
             estudiante.grado_id = data.get("grado_id", estudiante.grado_id)
             estudiante.save()
         return instance
@@ -277,23 +266,15 @@ class UserDocenteModelSerializer(serializers.ModelSerializer):
         instance.username = validated_data.get("username", instance.username)
         instance.nickname = validated_data.get("nickname", instance.nickname)
         instance.avatar = validated_data.get("avatar", instance.avatar)
-        instance.fecha_nacimiento = validated_data.get(
-            "fecha_nacimiento", instance.fecha_nacimiento
-        )
+        instance.fecha_nacimiento = validated_data.get("fecha_nacimiento", instance.fecha_nacimiento)
         instance.celular = validated_data.get("celular", instance.celular)
         instance.direccion = validated_data.get("direccion", instance.direccion)
-        instance.observaciones = validated_data.get(
-            "observaciones", instance.observaciones
-        )
+        instance.observaciones = validated_data.get("observaciones", instance.observaciones)
 
         if data:
 
-            docente.grado_instruccion_id = data.get(
-                "grado_instruccion_id", docente.grado_instruccion_id
-            )
-            docente.herramientas_videollamada = data.get(
-                "herramientas_videollamada", docente.herramientas_videollamada
-            )
+            docente.grado_instruccion_id = data.get("grado_instruccion_id", docente.grado_instruccion_id)
+            docente.herramientas_videollamada = data.get("herramientas_videollamada", docente.herramientas_videollamada)
             docente.entrevista = data.get("entrevista", docente.entrevista)
             docente.confiabilidad = data.get("confiabilidad", docente.confiabilidad)
             docente.señal = data.get("señal", docente.señal)
@@ -328,3 +309,15 @@ class ClaseModelSerializer(serializers.ModelSerializer):
             "observaciones",
             "curso",
         )
+
+
+class ChatModelSerializer(serializers.ModelSerializer):
+
+    # docente = DocenteModelSerializer()
+    docente = UserDocenteModelSerializer(source="get_docente__user", read_only=True)
+    user = UserEstudianteModelSerializer(source="get_estudiante__user", read_only=True)
+    curso = CursoModelSerializer(required=False, read_only=True)
+
+    class Meta:
+        model = Chat
+        exclude = ["activo"]

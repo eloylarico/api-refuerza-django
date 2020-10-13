@@ -425,3 +425,42 @@ class Clase(Reserva):
         proxy = True
         verbose_name = "Clase"
         verbose_name_plural = "Clases"
+
+
+class Chat(models.Model):
+    """
+    Un chat entre 2 usuarios, por conveniencia colocaremos como user1 siempre al docente
+    """
+
+    user1 = models.ForeignKey(User, verbose_name="Docente", on_delete=models.SET_NULL)
+    user2 = models.ForeignKey(User, verbose_name="Tutor o Estudiante", on_delete=models.SET_NULL)
+    activo = models.BooleanField(verbose_name="Si esta activado, se le mostrará a los usuarios este chat", default=True)
+
+    def clean(self) -> None:
+        # ToDO VALIDAR USER1 Y USER2
+        pass
+
+    def __str__(self):
+        return f"Docente: {self.user1} - Tutor/Estudiante: {self.user2}"
+
+
+class Mensaje(models.Model):
+    user = models.ForeignKey(User, verbose_name="Usuario", on_delete=models.SET_NULL)
+    chat = models.ForeignKey(Chat, verbose_name="Chat", on_delete=models.CASCADE)
+    texto = models.TextField(blank=True, null=True)
+    archivo = models.FileField(upload_to="clases/mensajes/archivos", blank=True, null=True)
+    fecha = models.DateTimeField("Fecha y hora del mensaje", auto_now_add=True)
+    visto = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-fecha"]
+
+    def __str__(self):
+        return f"{self.chat}: ({self.user}) [{self.texto or self.archivo}]"
+
+    def clean(self) -> None:
+        if self.texto is None and self.archivo is None:
+            raise ValidationError("Debes enviar al menos un texto o un archivo para que sea un mensaje válido.")
+
+        if self.user is not self.chat.user1 or self.user is not self.chat.user2:
+            raise ValidationError("El usuario que envía el mensaje no forma parte de este chat.")
