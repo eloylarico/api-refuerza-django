@@ -8,7 +8,7 @@ from refuerzamas.clases.api.serializers import ClaseModelSerializer
 from refuerzamas.clases.models import Clase, User
 
 
-class ClasesUserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class ClasesUserViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
 
     serializer_class = ClaseModelSerializer
 

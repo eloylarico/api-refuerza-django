@@ -9,7 +9,7 @@ from refuerzamas.clases.api.views import (
     ClasesUserViewSet,
     DocenteViewSet, ChatViewSet,
 )
-
+from refuerzamas.clases.api.views.instituciones import InstitucionViewSet
 
 if settings.DEBUG:
     router = DefaultRouter()
@@ -23,6 +23,7 @@ router.register(r"clases", ClasesUserViewSet, basename="clases")
 
 router.register(r"docentes", DocenteViewSet, basename="docentes")
 router.register(r"chats", ChatViewSet, basename="chats")
+router.register(r"instituciones", InstitucionViewSet, basename="instituciones")
 
 
 app_name = "api"

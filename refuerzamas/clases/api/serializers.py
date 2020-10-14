@@ -21,11 +21,12 @@ from refuerzamas.clases.models import (
 )
 from refuerzamas.ciudades.models import Pais, Region, Ciudad
 
+
 # Other Serialziers
 class NivelModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Nivel
-        fields = ("nombre", "descripcion", "orden", "foto")
+        fields = ("id", "nombre", "descripcion", "orden", "foto")
 
 
 class MateriaModelSerializer(serializers.ModelSerializer):
@@ -39,11 +40,10 @@ class GradoModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Grado
-        fields = ("nombre", "descripcion", "orden", "nivel")
+        fields = ("id", "nombre", "descripcion", "orden", "nivel")
 
 
 class CursoModelSerializer(serializers.ModelSerializer):
-
     materia = MateriaModelSerializer(required=False, read_only=True)
     grado = GradoModelSerializer(required=False, read_only=True)
 
@@ -59,7 +59,6 @@ class PaisModelSerializer(serializers.ModelSerializer):
 
 
 class RegionModelSerializer(serializers.ModelSerializer):
-
     pais = PaisModelSerializer(required=False, read_only=True)
 
     class Meta:
@@ -68,7 +67,6 @@ class RegionModelSerializer(serializers.ModelSerializer):
 
 
 class CiudadModelSerializer(serializers.ModelSerializer):
-
     region = RegionModelSerializer(required=False, read_only=True)
 
     class Meta:
@@ -77,7 +75,6 @@ class CiudadModelSerializer(serializers.ModelSerializer):
 
 
 class InstitucionModelSerializer(serializers.ModelSerializer):
-
     ciudad = CiudadModelSerializer(required=False, read_only=True)
 
     class Meta:
@@ -89,7 +86,7 @@ class InstitucionModelSerializer(serializers.ModelSerializer):
 class GenerosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genero
-        fields = ("nombre",)
+        fields = ("id", "nombre")
 
 
 class GradoInstruccionModelSerializer(serializers.ModelSerializer):
@@ -132,11 +129,13 @@ class TutorModelSerializer(serializers.ModelSerializer):
 class UserTutorModelSerializer(serializers.ModelSerializer):
     genero = GenerosSerializer(required=False, read_only=True)
     perfil_tutor = TutorModelSerializer(required=False)
+    display_name = serializers.CharField(read_only=True)
 
     class Meta:
         model = User
         fields = (
             "username",
+            "display_name",
             "nickname",
             "tipo_usuario",
             "avatar",
@@ -146,7 +145,7 @@ class UserTutorModelSerializer(serializers.ModelSerializer):
             "direccion",
             "observaciones",
             "genero",
-            "perfil_tutor",
+            "perfil_tutor"
         )
         read_only_fields = (
             "email",
@@ -172,8 +171,8 @@ class EstudianteModelSerializer(serializers.ModelSerializer):
     grado = GradoModelSerializer(required=False, read_only=True)
     tutor = UserTutorModelSerializer(required=False, read_only=True)
 
-    institucion_id = serializers.IntegerField(required=False, write_only=True, allow_null=True)
-    grado_id = serializers.IntegerField(required=False, write_only=True, allow_null=True)
+    institucion_id = serializers.IntegerField(required=False, allow_null=True)
+    grado_id = serializers.IntegerField(required=False, allow_null=True)
 
     class Meta:
         model = Estudiante
@@ -182,14 +181,18 @@ class EstudianteModelSerializer(serializers.ModelSerializer):
 
 
 class UserEstudianteModelSerializer(serializers.ModelSerializer):
-
     genero = GenerosSerializer(required=False, read_only=True)
     perfil_estudiante = EstudianteModelSerializer(required=False)
+
+    genero_id = serializers.IntegerField(required=False, allow_null=True)
 
     class Meta:
         model = User
         fields = (
+            "id",
             "username",
+            "first_name",
+            "last_name",
             "nickname",
             "tipo_usuario",
             "avatar",
@@ -200,6 +203,7 @@ class UserEstudianteModelSerializer(serializers.ModelSerializer):
             "observaciones",
             "genero",
             "perfil_estudiante",
+            "genero_id"
         )
         read_only_fields = (
             "email",
@@ -207,6 +211,7 @@ class UserEstudianteModelSerializer(serializers.ModelSerializer):
             "fecha_nacimiento",
             "genero",
         )
+        depth = 5
 
     def update(self, instance, validated_data):
         estudiante = instance.perfil_estudiante
@@ -215,12 +220,16 @@ class UserEstudianteModelSerializer(serializers.ModelSerializer):
             data = validated_data.get("perfil_estudiante")
 
         instance.username = validated_data.get("username", instance.username)
+        instance.first_name = validated_data.get("first_name", instance.first_name)
+        instance.last_name = validated_data.get("last_name", instance.last_name)
         instance.nickname = validated_data.get("nickname", instance.nickname)
         instance.avatar = validated_data.get("avatar", instance.avatar)
         instance.fecha_nacimiento = validated_data.get("fecha_nacimiento", instance.fecha_nacimiento)
         instance.celular = validated_data.get("celular", instance.celular)
         instance.direccion = validated_data.get("direccion", instance.direccion)
         instance.observaciones = validated_data.get("observaciones", instance.observaciones)
+        instance.genero_id = validated_data.get("genero_id", instance.genero_id)
+        instance.save()
 
         if data:
             estudiante.institucion_id = data.get("institucion_id", estudiante.institucion_id)
@@ -230,7 +239,6 @@ class UserEstudianteModelSerializer(serializers.ModelSerializer):
 
 
 class UserDocenteModelSerializer(serializers.ModelSerializer):
-
     genero = GenerosSerializer(required=False, read_only=True)
     perfil_docente = DocenteModelSerializer(required=False)
     display_name = serializers.CharField(read_only=True)
@@ -273,7 +281,6 @@ class UserDocenteModelSerializer(serializers.ModelSerializer):
         instance.observaciones = validated_data.get("observaciones", instance.observaciones)
 
         if data:
-
             docente.grado_instruccion_id = data.get("grado_instruccion_id", docente.grado_instruccion_id)
             docente.herramientas_videollamada = data.get("herramientas_videollamada", docente.herramientas_videollamada)
             docente.entrevista = data.get("entrevista", docente.entrevista)
@@ -289,7 +296,6 @@ class UserDocenteModelSerializer(serializers.ModelSerializer):
 
 
 class ClaseModelSerializer(serializers.ModelSerializer):
-
     # docente = DocenteModelSerializer()
     docente = UserDocenteModelSerializer(source="get_docente__user", read_only=True)
     user = UserEstudianteModelSerializer(source="get_estudiante__user", read_only=True)
@@ -298,6 +304,7 @@ class ClaseModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Clase
         fields = (
+            "id",
             "docente",
             "user",
             "precio_estudiante",
@@ -332,11 +339,3 @@ class ChatModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chat
         exclude = ["activo"]
-
-
-class MensajeModelSerializer(serializers.ModelSerializer):
-    user = UserEstudianteModelSerializer(read_only=True)
-
-    class Meta:
-        model = Mensaje
-        fields = "__all__"
