@@ -190,68 +190,6 @@ class User(AbstractUser):
         verbose_name_plural = "Usuarios"
 
 
-@receiver(pre_save, sender=User)
-def enviar_correo(sender, instance: User, **kwargs):
-    # SI el usuario no ha sido guardado antes, no tiene una pk
-    if instance.pk is None:
-        pass
-        # Enviar correo de bienvenida
-    if instance.pk is None:
-        # Enviar correo de que se ha cambiado su pass o algo
-        pass
-
-
-@receiver(post_save, sender=User)
-def borrar_perfil_erroneo(sender, instance: User, **kwargs):
-    # SI el usuario no es del tipo, borrar su perfil, en caso exista
-    if instance.tipo_usuario != User.ESTUDIANTE:
-        try:
-            Estudiante.objects.get(user=instance).delete()
-        except Estudiante.DoesNotExist:
-            pass
-    if instance.tipo_usuario != User.DOCENTE:
-        try:
-            Docente.objects.get(user=instance).delete()
-        except Docente.DoesNotExist:
-            pass
-    if instance.tipo_usuario != User.TUTOR:
-        try:
-            Tutor.objects.get(user=instance).delete()
-        except Tutor.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=User)
-def borrar_perfil_erroneo(sender, instance: User, created, **kwargs):
-    # SI el usuario no es del tipo, borrar su perfil, en caso exista
-    if instance.tipo_usuario != User.ESTUDIANTE:
-        try:
-            Estudiante.objects.get(user=instance).delete()
-        except Estudiante.DoesNotExist:
-            pass
-    if instance.tipo_usuario != User.DOCENTE:
-        try:
-            Docente.objects.get(user=instance).delete()
-        except Docente.DoesNotExist:
-            pass
-    if instance.tipo_usuario != User.TUTOR:
-        try:
-            Tutor.objects.get(user=instance).delete()
-        except Tutor.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-
-    if instance.tipo_usuario == User.ESTUDIANTE:
-        Estudiante.objects.get_or_create(user=instance)
-    elif instance.tipo_usuario == User.TUTOR:
-        Tutor.objects.get_or_create(user=instance)
-    elif instance.tipo_usuario == User.DOCENTE:
-        Docente.objects.get_or_create(user=instance)
-
-
 class Tutor(models.Model):
 
     user = models.OneToOneField(User, verbose_name="Tutor", on_delete=models.CASCADE, related_name="perfil_tutor")
