@@ -154,7 +154,7 @@ class User(AbstractUser):
             return Chat.objects.filter(user2=self)
 
         elif self.tipo_usuario == User.TUTOR:
-            tutelados_user_id = self.perfil_tutor.tutelados.values_list('user_id', flat=True)
+            tutelados_user_id = self.perfil_tutor.tutelados.values_list("user_id", flat=True)
             chats = Chat.objects.filter(user2_id__in=tutelados_user_id) | Chat.objects.filter(user2=self)
             return chats
 
@@ -188,68 +188,6 @@ class User(AbstractUser):
     class Meta:
         verbose_name = "Usuario"
         verbose_name_plural = "Usuarios"
-
-
-@receiver(pre_save, sender=User)
-def enviar_correo(sender, instance: User, **kwargs):
-    # SI el usuario no ha sido guardado antes, no tiene una pk
-    if instance.pk is None:
-        pass
-        # Enviar correo de bienvenida
-    if instance.pk is None:
-        # Enviar correo de que se ha cambiado su pass o algo
-        pass
-
-
-@receiver(post_save, sender=User)
-def borrar_perfil_erroneo(sender, instance: User, **kwargs):
-    # SI el usuario no es del tipo, borrar su perfil, en caso exista
-    if instance.tipo_usuario != User.ESTUDIANTE:
-        try:
-            Estudiante.objects.get(user=instance).delete()
-        except Estudiante.DoesNotExist:
-            pass
-    if instance.tipo_usuario != User.DOCENTE:
-        try:
-            Docente.objects.get(user=instance).delete()
-        except Docente.DoesNotExist:
-            pass
-    if instance.tipo_usuario != User.TUTOR:
-        try:
-            Tutor.objects.get(user=instance).delete()
-        except Tutor.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=User)
-def borrar_perfil_erroneo(sender, instance: User, created, **kwargs):
-    # SI el usuario no es del tipo, borrar su perfil, en caso exista
-    if instance.tipo_usuario != User.ESTUDIANTE:
-        try:
-            Estudiante.objects.get(user=instance).delete()
-        except Estudiante.DoesNotExist:
-            pass
-    if instance.tipo_usuario != User.DOCENTE:
-        try:
-            Docente.objects.get(user=instance).delete()
-        except Docente.DoesNotExist:
-            pass
-    if instance.tipo_usuario != User.TUTOR:
-        try:
-            Tutor.objects.get(user=instance).delete()
-        except Tutor.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-
-    if instance.tipo_usuario == User.ESTUDIANTE:
-        Estudiante.objects.get_or_create(user=instance)
-    elif instance.tipo_usuario == User.TUTOR:
-        Tutor.objects.get_or_create(user=instance)
-    elif instance.tipo_usuario == User.DOCENTE:
-        Docente.objects.get_or_create(user=instance)
 
 
 class Tutor(models.Model):
@@ -317,10 +255,15 @@ class Docente(models.Model):
     señal = models.CharField(max_length=100, choices=ESCALA_EVALUACION_CHOICES, blank=True, null=True)
     breve_cv = models.TextField(null=True, blank=True)
     curriculum = models.CharField(max_length=100, choices=ESCALA_EVALUACION_CHOICES, blank=True, null=True)
+    estrellas = models.PositiveSmallIntegerField(help_text="Calificación del 1 a 5 estrellas del docente.", default=5)
     docencia = models.BooleanField(blank=True, null=True)
     titulo = models.BooleanField(blank=True, null=True)
     filosofia = models.TextField(null=True, blank=True)
     cursos = models.ManyToManyField(Curso, related_name="cursos")
+
+    def get_materias(self):
+        materias_ids = self.cursos.values_list("materia_id", flat=True)
+        return Materia.objects.filter(id__in=materias_ids)
 
     def __str__(self):
         return str(self.user)
@@ -397,6 +340,7 @@ class Reserva(models.Model):
     estado = models.CharField(max_length=100, choices=ESTADO_CLASE_CHOICES, default=PENDIENTE)
     motivo_reporte = models.TextField(blank=True, null=True)
     observaciones = models.TextField(blank=True, null=True)
+    enlace_videollamada = models.URLField(max_length=250)
 
     # estado = models.ForeignKey(Estado, on_delete=models.PROTECT, help_text="Estado de la reserva")
 
@@ -445,7 +389,9 @@ class Chat(models.Model):
     """
 
     user1 = models.ForeignKey(User, verbose_name="Docente", on_delete=models.PROTECT, related_name="chats_docente")
-    user2 = models.ForeignKey(User, verbose_name="Tutor o Estudiante", on_delete=models.PROTECT, related_name="chats_estudiante_o_tutor")
+    user2 = models.ForeignKey(
+        User, verbose_name="Tutor o Estudiante", on_delete=models.PROTECT, related_name="chats_estudiante_o_tutor"
+    )
     activo = models.BooleanField(verbose_name="Si esta activado, se le mostrará a los usuarios este chat", default=True)
 
     @property
@@ -481,5 +427,5 @@ class Mensaje(models.Model):
         if self.texto is None and self.archivo is None:
             raise ValidationError("Debes enviar al menos un texto o un archivo para que sea un mensaje válido.")
 
-        if  self.user_id != self.chat.user1_id and self.user_id != self.chat.user2_id:
+        if self.user_id != self.chat.user1_id and self.user_id != self.chat.user2_id:
             raise ValidationError("El usuario que envía el mensaje no forma parte de este chat.")
