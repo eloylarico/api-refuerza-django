@@ -17,7 +17,8 @@ from refuerzamas.clases.models import (
     Curso,
     Materia,
     Grado,
-    Nivel, Mensaje,
+    Nivel,
+    Mensaje,
 )
 from refuerzamas.ciudades.models import Pais, Region, Ciudad
 
@@ -101,6 +102,7 @@ class DocenteModelSerializer(serializers.ModelSerializer):
     grado_instruccion = GradoInstruccionModelSerializer(required=False, read_only=True)
     grado_instruccion_id = serializers.IntegerField(required=False, write_only=True, allow_null=True)
     cursos = CursoModelSerializer(required=False, read_only=True, many=True)
+    materias = MateriaModelSerializer(source="get_materias", required=False, read_only=True, many=True)
 
     class Meta:
         model = Docente
@@ -117,6 +119,8 @@ class DocenteModelSerializer(serializers.ModelSerializer):
             "titulo",
             "filosofia",
             "cursos",
+            "materias",
+            "estrellas",
         )
 
 
@@ -145,7 +149,7 @@ class UserTutorModelSerializer(serializers.ModelSerializer):
             "direccion",
             "observaciones",
             "genero",
-            "perfil_tutor"
+            "perfil_tutor",
         )
         read_only_fields = (
             "email",
@@ -203,7 +207,7 @@ class UserEstudianteModelSerializer(serializers.ModelSerializer):
             "observaciones",
             "genero",
             "perfil_estudiante",
-            "genero_id"
+            "genero_id",
         )
         read_only_fields = (
             "email",
@@ -246,6 +250,7 @@ class UserDocenteModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
+            "id",
             "username",
             "display_name",
             "nickname",
@@ -308,6 +313,7 @@ class ClaseModelSerializer(serializers.ModelSerializer):
             "docente",
             "user",
             "precio_estudiante",
+            "enlace_videollamada",
             "precio_docente",
             "medio_pago",
             "hora_inicio",
@@ -322,13 +328,13 @@ class ClaseModelSerializer(serializers.ModelSerializer):
 class MensajeModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Mensaje
-        fields = '__all__'
+        fields = "__all__"
 
 
 class UserModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['display_name']
+        fields = ["display_name"]
 
 
 class ChatModelSerializer(serializers.ModelSerializer):
