@@ -407,7 +407,7 @@ class Chat(models.Model):
 
     @property
     def ultimo_mensaje(self):
-        return self.mensajes.last()
+        return self.mensajes.first()
 
     def clean(self) -> None:
         if self.user1.tipo_usuario != User.DOCENTE:

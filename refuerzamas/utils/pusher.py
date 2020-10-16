@@ -3,13 +3,13 @@ from typing import List
 from django.conf import settings
 import pusher
 from pusher_push_notifications import PushNotifications
+from rest_framework.request import Request
 
 from refuerzamas.clases.api.serializers import MensajeModelSerializer
 from refuerzamas.clases.models import Chat, Mensaje
 
 
 def load_pusher_channels_config():
-
     pusher_channels_app_id = settings.PUSHER_CHANNELS_APP_ID
     pusher_channels_key = settings.PUSHER_CHANNELS_KEY
     pusher_channels_secret = settings.PUSHER_CHANNELS_SECRET
@@ -18,7 +18,6 @@ def load_pusher_channels_config():
 
 
 def load_pusher_beams_config():
-
     pusher_beams_instance_id = settings.PUSHER_BEAMS_INSTANCE_ID
     pusher_beams_secret_key = settings.PUSHER_BEAMS_SECRET_KEY
     return pusher_beams_instance_id, pusher_beams_secret_key

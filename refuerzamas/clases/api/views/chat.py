@@ -16,7 +16,7 @@ class ChatViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         try:
             chat = user.get_chats().get(id=pk)
             mensajes = chat.mensajes.all()
-            serializer = MensajeModelSerializer(mensajes, many=True)
+            serializer = MensajeModelSerializer(mensajes, many=True, context=self.get_serializer_context())
             return JsonResponse(serializer.data, safe=False)
         except Chat.DoesNotExist:
             raise Http404
@@ -35,3 +35,16 @@ class ChatViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def get_queryset(self):
         return self.request.user.get_chats()
+
+
+class MensajeViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    serializer_class = MensajeModelSerializer
+    queryset = Mensaje.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        data['user'] = self.request.user.id
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
