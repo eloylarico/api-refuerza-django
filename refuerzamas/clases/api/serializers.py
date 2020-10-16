@@ -334,11 +334,13 @@ class MensajeModelSerializer(serializers.ModelSerializer):
 class UserModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["display_name"]
+        fields = ["display_name", "avatar"]
 
 
 class ChatModelSerializer(serializers.ModelSerializer):
     ultimo_mensaje = MensajeModelSerializer(read_only=True)
+    mensajes_no_revisados_estudiante = serializers.IntegerField(read_only=True)
+    mensajes_no_revisados_profesor = serializers.IntegerField(read_only=True)
     user1 = UserModelSerializer(read_only=True)
     user2 = UserModelSerializer(read_only=True)
 

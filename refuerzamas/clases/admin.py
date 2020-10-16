@@ -397,17 +397,24 @@ class CursoAdmin(ModelAdmin):
     ]
 
 
+
+class MensajeInlineAdmin(admin.TabularInline):
+    model = Mensaje
+    extra = 1
+
+
 @register(Chat)
 class ChatAdmin(ModelAdmin):
+    inlines = [MensajeInlineAdmin]
     list_display = [
         "user1",
         "user2",
     ]
 
-@register(Mensaje)
-class MensajeAdmin(ModelAdmin):
-    list_display = [
-        "user",
-        "chat",
-        "texto",
-    ]
+# @register(Mensaje)
+# class MensajeAdmin(ModelAdmin):
+#     list_display = [
+#         "user",
+#         "chat",
+#         "texto",
+#     ]

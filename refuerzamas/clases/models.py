@@ -456,6 +456,17 @@ class Chat(models.Model):
     )
     activo = models.BooleanField(verbose_name="Si esta activado, se le mostrará a los usuarios este chat", default=True)
 
+    class Meta:
+        ordering = ["-id"]
+
+    @property
+    def mensajes_no_revisados_estudiante(self):
+        return self.mensajes.filter(visto=False, user=self.user1).count()
+
+    @property
+    def mensajes_no_revisados_profesor(self):
+        return self.mensajes.filter(visto=False, user=self.user2).count()
+
     @property
     def ultimo_mensaje(self):
         return self.mensajes.last()
