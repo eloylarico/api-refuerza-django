@@ -138,6 +138,7 @@ class UserTutorModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
+            "id",
             "username",
             "display_name",
             "nickname",
@@ -326,15 +327,22 @@ class ClaseModelSerializer(serializers.ModelSerializer):
 
 
 class MensajeModelSerializer(serializers.ModelSerializer):
+    tutor = serializers.SerializerMethodField()
     class Meta:
         model = Mensaje
         fields = "__all__"
+
+    def get_tutor(self, mensaje):
+        user = mensaje.user
+        if user.tipo_usuario == User.ESTUDIANTE:
+            return user.perfil_estudiante.tutor.user_id
+        return ''
 
 
 class UserModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["display_name", "avatar"]
+        fields = ["id", "display_name", "avatar"]
 
 
 class ChatModelSerializer(serializers.ModelSerializer):
