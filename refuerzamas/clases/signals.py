@@ -1,12 +1,11 @@
 from django.conf import settings
-from django.core.mail import send_mail
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
 from refuerzamas.clases.models import Docente, Estudiante, Mensaje, Reserva, Chat, Tutor, User
 from refuerzamas.utils.pusher import PusherChannelsClient
 
-# from refuerzamas.utils.mail import send_mail
+from refuerzamas.utils.mail import enviar_correo
 
 # User
 @receiver(pre_save, sender=User)
@@ -14,7 +13,7 @@ def enviar_correo(sender, instance: User, **kwargs):
     # SI el usuario no ha sido guardado antes, no tiene una pk. Es decir si es un nuevo usuario
     if instance.pk is None and instance.tipo_usuario is not None:
         # Enviar correo de bienvenida
-        send_mail(
+        enviar_correo(
             f"BIENVENIDO",
             f"""
             BIENVENIDO
