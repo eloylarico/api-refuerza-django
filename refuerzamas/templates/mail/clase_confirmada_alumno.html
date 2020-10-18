@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bienvenido a Refuerzamas</title>
+{#  <link rel="stylesheet" href="{% static 'mail/css/bootstrap.min.css' %}">#}
+{#  <link rel="stylesheet" href="{% static 'mail/css/estilos.css' %}">#}
+
+</head>
+<body class="cuerpo">
+  <div class="row w-100 mr-0 ml-0">
+    <div class="h-100 col-1 col-lg-2 pl-0 d-flex">
+      <img src="{% static 'img/fondo-1.svg' %}" alt="">
+      <img src="{% static 'img/fondo-1.svg' %}" alt="">
+    </div>
+
+
+
+    <div class="col-10 col-lg-8 px-0 col-cuerpo">
+      <div class="w-100 d-flex justify-content-center pr-0 ml-0 pt-4 pb-4 div-logo">
+        <img class="logo-img" width="50%" src="{% static 'img/logo.svg" alt' %}">
+      </div>
+
+      <div class="container cuerpo-inferior pt-3">
+        <div class="row div-confirmada m-0">
+          <div class="col-6 py-4">
+            <img class="img-confirmada" width="130%" src="{% static 'img/img-2.svg' %}" alt="">
+          </div>
+          <div class="col-6 pt-5">
+            <p class="texto-confirmada mb-2">¡Clase confirmada!</p>
+            <p class="texto-confirmada-2">Gracias por confiar en Refuerzamas.</p>
+          </div>
+        </div>
+
+        <div class="texto-div mt-4">
+          <p>Hey :) <br> <br>
+            ¿Cómo estás? Esperamos que muy bien. Hemos recibido una solicitud de reserva y nos alegra que continues con tu aprendizaje para lograr tus metas. <br> <br>
+            <span>Te recordamos que tu clase es:</span><br> <br>
+            <span>{{  reserva.hora_inicio|date:"l d \d\e F" }}</span> <br>
+            <span>Hora Perú:</span> {{  reserva.hora_inicio|time:"h\:sa" }}<br>
+            <span>Curso:</span> {{ reserva.curso.materia.nombre }} <br> <br>
+            <span>¿Por donde dictaré mi clase? </span> <br> <br>
+            Podrás entrar a la videollamada dando click <a target="_blank" href="{{ reserva.enlace_videollamada }}">aquí</a> <br> <br>
+            <span>¿Puedo ver la información de mi clase o hablar con el profesor? </span> <br> <br>
+            Mediante la aplicación de Refuerza más que la podrás descargar dando click<a target="_blank" href="https://estudiantes.refuerzamas.com">aquí</a> <br> <br>
+            <span>¿Cuál es mi usuario y contraseña?</span> <br>
+            <span>Usuario:</span> {{ estudiante.email }} <br>
+            <span>Contraseña:</span> {{ estudiante.raw_password }} <br> <br>
+            Recuerda no compartir estos datos, ya que no podrás cambiar tu contraseña posteriormente. <br> <br>
+            Una vez más gracias por ser parte de Refuerza +.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-1 col-lg-2 pr-0" style="display: flex;justify-content: flex-end;">
+      <img class="" src="{% static 'img/fondo-2.svg' %}" alt="">
+      <img class="" src="{% static 'img/fondo-2.svg' %}" alt="">
+    </div>
+  </div>
+</body>
+</html>

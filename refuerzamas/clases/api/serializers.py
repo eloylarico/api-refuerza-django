@@ -188,7 +188,7 @@ class EstudianteModelSerializer(serializers.ModelSerializer):
 class UserEstudianteModelSerializer(serializers.ModelSerializer):
     genero = GenerosSerializer(required=False, read_only=True)
     perfil_estudiante = EstudianteModelSerializer(required=False)
-
+    display_name = serializers.CharField(read_only=True)
     genero_id = serializers.IntegerField(required=False, allow_null=True)
 
     class Meta:
@@ -198,6 +198,7 @@ class UserEstudianteModelSerializer(serializers.ModelSerializer):
             "username",
             "first_name",
             "last_name",
+            "display_name",
             "nickname",
             "tipo_usuario",
             "avatar",
@@ -328,6 +329,7 @@ class ClaseModelSerializer(serializers.ModelSerializer):
 
 class MensajeModelSerializer(serializers.ModelSerializer):
     tutor = serializers.SerializerMethodField()
+
     class Meta:
         model = Mensaje
         fields = "__all__"
@@ -336,7 +338,7 @@ class MensajeModelSerializer(serializers.ModelSerializer):
         user = mensaje.user
         if user.tipo_usuario == User.ESTUDIANTE:
             return user.perfil_estudiante.tutor.user_id
-        return ''
+        return ""
 
 
 class UserModelSerializer(serializers.ModelSerializer):

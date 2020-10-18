@@ -1,38 +1,14 @@
 from django.conf import settings
+from django.core import mail
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 from refuerzamas.clases.models import Docente, Estudiante, Mensaje, Reserva, Chat, Tutor, User
 from refuerzamas.utils.pusher import PusherChannelsClient
 
-from refuerzamas.utils.mail import enviar_correo
-
-# User
-@receiver(pre_save, sender=User)
-def enviar_correo(sender, instance: User, **kwargs):
-    # SI el usuario no ha sido guardado antes, no tiene una pk. Es decir si es un nuevo usuario
-    if instance.pk is None and instance.tipo_usuario is not None:
-        # Enviar correo de bienvenida
-        enviar_correo(
-            f"BIENVENIDO",
-            f"""
-            BIENVENIDO
-            - Tu pass es: {instance._password}
-            """,
-            settings.DEFAULT_FROM_EMAIL,
-            [instance.email],
-        )
-    # else:
-    #     # Enviar correo de que se ha cambiado su pass o algo
-    #     send_mail(
-    #         f"PASS CAMBIADA",
-    #         f"""
-    #         PASS CAMBIADA
-    #         - Tu pass es: {instance._password}
-    #         """,
-    #         settings.EMAIL_CONFIG.get("EMAIL_HOST_USER"),
-    #         [instance.correo],
-    #     )
+from refuerzamas.utils.mail import send_mail
 
 
 @receiver(post_save, sender=User)
@@ -94,6 +70,60 @@ def crear_chat(sender, instance: Reserva, created, **kwargs):
 
     Chat.objects.get_or_create(user1=instance.docente.user, user2=instance.estudiante.user)
     Chat.objects.get_or_create(user1=instance.docente.user, user2=instance.estudiante.tutor.user)
+
+
+@receiver(post_save, sender=Reserva)
+def enviar_correo_alumno(sender, instance: Reserva, created, **kwargs):
+    if instance.estado == Reserva.ACTIVA:
+        subject = "Clase confirmada - Refuerza+"
+        html_message = render_to_string(
+            "mail/clase_confirmada_alumno.html",
+            {
+                "reserva": instance,
+                "estudiante": instance.estudiante.user,
+                "docente": instance.docente.user,
+            },
+        )
+        plain_message = strip_tags(html_message)
+        from_email = settings.DEFAULT_FROM_EMAIL
+        to = instance.estudiante.user.email
+        # mail.send_mail(
+        #     subject=subject,
+        #     message=plain_message,
+        #     from_email=from_email,
+        #     recipient_list=[to],
+        #     html_message=html_message,
+        # )
+        send_mail(
+            subject=subject,
+            message=plain_message,
+            from_email=from_email,
+            recipient_list=[to],
+            html_message=html_message,
+        )
+
+@receiver(post_save, sender=Reserva)
+def enviar_correo_docente(sender, instance: Reserva, created, **kwargs):
+    if instance.estado == Reserva.ACTIVA:
+        subject = "Clase confirmada - Refuerza+"
+        html_message = render_to_string(
+            "mail/clase_confirmada_docente.html",
+            {
+                "reserva": instance,
+                "estudiante": instance.estudiante.user,
+                "docente": instance.docente.user,
+            },
+        )
+        plain_message = strip_tags(html_message)
+        from_email = settings.DEFAULT_FROM_EMAIL
+        to = instance.docente.user.email
+        send_mail(
+            subject=subject,
+            message=plain_message,
+            from_email=from_email,
+            recipient_list=[to],
+            html_message=html_message,
+        )
 
 
 # MENSAJE
