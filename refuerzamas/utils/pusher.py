@@ -50,6 +50,11 @@ class PusherChannelsClient:
         reserva = ClaseModelSerializer(reserva)
         self.pusher_client.trigger(canal, "clase_disponible", reserva.data)
 
+    def send_class_reserved(self, reserva: Reserva):
+        canal = f"clase-curso-{reserva.curso_id}"
+        reserva = ClaseModelSerializer(reserva)
+        self.pusher_client.trigger(canal, "clase_reservada", reserva.data)
+
 
 class PusherBeamsClient:
     def __init__(self):

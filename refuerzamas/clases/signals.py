@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
 from refuerzamas.clases.api.serializers import ClaseModelSerializer
-from refuerzamas.clases.models import Docente, Estudiante, Mensaje, Reserva, Chat, Tutor, User
+from refuerzamas.clases.models import Docente, Estudiante, Mensaje, Reserva, Chat, Tutor, User, Clase
 from refuerzamas.utils.pusher import PusherBeamsClient, PusherChannelsClient
 
 from refuerzamas.utils.mail import send_mail
@@ -54,7 +54,6 @@ def borrar_perfil_erroneo(sender, instance: User, created, **kwargs):
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
-
     if instance.tipo_usuario == User.ESTUDIANTE:
         Estudiante.objects.get_or_create(user=instance)
     elif instance.tipo_usuario == User.TUTOR:
@@ -71,6 +70,13 @@ def crear_chat(sender, instance: Reserva, created, **kwargs):
 
     Chat.objects.get_or_create(user1=instance.docente.user, user2=instance.estudiante.user)
     Chat.objects.get_or_create(user1=instance.docente.user, user2=instance.estudiante.tutor.user)
+
+
+@receiver(post_save, sender=Reserva)
+def enviar_señal_clase_reservada(sender, instance: Reserva, created, **kwargs):
+    if instance.estado == Reserva.ACTIVA:
+        pusher_client = PusherChannelsClient()
+        pusher_client.send_class_reserved(reserva=instance)
 
 
 @receiver(post_save, sender=Reserva)
@@ -152,7 +158,6 @@ def enviar_mensaje_pusher(sender, instance: Mensaje, created, **kwargs):
         return
     pusher_client = PusherChannelsClient()
     pusher_client.send_chat_message(chat=instance.chat, mensaje=instance)
-
 
 #
 # @receiver(post_save, sender=Mensaje)
