@@ -135,10 +135,14 @@ class UserTutorModelSerializer(serializers.ModelSerializer):
     perfil_tutor = TutorModelSerializer(required=False)
     display_name = serializers.CharField(read_only=True)
 
+    genero_id = serializers.IntegerField(required=False, allow_null=True)
+
     class Meta:
         model = User
         fields = (
             "id",
+            "first_name",
+            "last_name",
             "username",
             "display_name",
             "nickname",
@@ -150,6 +154,7 @@ class UserTutorModelSerializer(serializers.ModelSerializer):
             "direccion",
             "observaciones",
             "genero",
+            "genero_id",
             "perfil_tutor",
         )
         read_only_fields = (
@@ -181,7 +186,7 @@ class EstudianteModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Estudiante
-        fields = ("institucion", "grado", "tutor", "institucion_id", "grado_id")
+        fields = ("institucion", "grado", "tutor", "institucion_id", "breve_cv", "grado_id", "estrellas")
         read_only_fields = ("tutor",)
 
 
@@ -210,6 +215,7 @@ class UserEstudianteModelSerializer(serializers.ModelSerializer):
             "genero",
             "perfil_estudiante",
             "genero_id",
+            "display_name"
         )
         read_only_fields = (
             "email",
@@ -240,6 +246,7 @@ class UserEstudianteModelSerializer(serializers.ModelSerializer):
         if data:
             estudiante.institucion_id = data.get("institucion_id", estudiante.institucion_id)
             estudiante.grado_id = data.get("grado_id", estudiante.grado_id)
+            estudiante.breve_cv = data.get("breve_cv", estudiante.breve_cv)
             estudiante.save()
         return instance
 
@@ -249,10 +256,14 @@ class UserDocenteModelSerializer(serializers.ModelSerializer):
     perfil_docente = DocenteModelSerializer(required=False)
     display_name = serializers.CharField(read_only=True)
 
+    genero_id = serializers.IntegerField(required=False, allow_null=True)
+
     class Meta:
         model = User
         fields = (
             "id",
+            "first_name",
+            "last_name",
             "username",
             "display_name",
             "nickname",
@@ -265,6 +276,7 @@ class UserDocenteModelSerializer(serializers.ModelSerializer):
             "observaciones",
             "genero",
             "perfil_docente",
+            "genero_id"
         )
         read_only_fields = (
             "email",
@@ -279,6 +291,8 @@ class UserDocenteModelSerializer(serializers.ModelSerializer):
         if validated_data.get("perfil_docente"):
             data = validated_data.get("perfil_docente")
 
+        instance.first_name = validated_data.get("first_name", instance.first_name)
+        instance.last_name = validated_data.get("last_name", instance.last_name)
         instance.username = validated_data.get("username", instance.username)
         instance.nickname = validated_data.get("nickname", instance.nickname)
         instance.avatar = validated_data.get("avatar", instance.avatar)
@@ -286,6 +300,8 @@ class UserDocenteModelSerializer(serializers.ModelSerializer):
         instance.celular = validated_data.get("celular", instance.celular)
         instance.direccion = validated_data.get("direccion", instance.direccion)
         instance.observaciones = validated_data.get("observaciones", instance.observaciones)
+        instance.genero_id = validated_data.get("genero_id", instance.genero_id)
+        instance.save()
 
         if data:
             docente.grado_instruccion_id = data.get("grado_instruccion_id", docente.grado_instruccion_id)
@@ -342,9 +358,11 @@ class MensajeModelSerializer(serializers.ModelSerializer):
 
 
 class UserModelSerializer(serializers.ModelSerializer):
+    perfil_tutor = TutorModelSerializer()
+
     class Meta:
         model = User
-        fields = ["id", "display_name", "avatar"]
+        fields = ["id", "display_name", "avatar", "tipo_usuario", "perfil_tutor"]
 
 
 class ChatModelSerializer(serializers.ModelSerializer):

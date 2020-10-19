@@ -3,6 +3,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Q
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from model_utils.models import TimeStampedModel
@@ -199,7 +200,6 @@ class User(AbstractUser):
 
 
 class Tutor(models.Model):
-
     user = models.OneToOneField(User, verbose_name="Tutor", on_delete=models.CASCADE, related_name="perfil_tutor")
 
     class Meta:
@@ -215,13 +215,14 @@ class Tutor(models.Model):
 
 
 class Estudiante(models.Model):
-
     user = models.OneToOneField(
         User, verbose_name="Estudiante", on_delete=models.CASCADE, related_name="perfil_estudiante"
     )
     institucion = models.ForeignKey(Institucion, on_delete=models.PROTECT, null=True, blank=True)
     grado = models.ForeignKey(Grado, blank=True, null=True, on_delete=models.PROTECT)
     tutor = models.ForeignKey(Tutor, blank=True, null=True, on_delete=models.PROTECT, related_name="tutelados")
+    breve_cv = models.TextField(null=True, blank=True)
+    estrellas = models.PositiveSmallIntegerField(help_text="Calificación del 1 a 5 estrellas del docente.", default=5)
 
     class Meta:
         verbose_name = "Perfil del estudiante"
@@ -232,7 +233,6 @@ class Estudiante(models.Model):
 
 
 class Docente(models.Model):
-
     # Choices
     MUY_BUENO = "MUY_BUENO"
     BUENO = "BUENO"
@@ -282,7 +282,6 @@ class Docente(models.Model):
 
 
 class HorarioLibreDocente(models.Model):
-
     docente = models.ForeignKey(
         Docente,
         on_delete=models.CASCADE,
