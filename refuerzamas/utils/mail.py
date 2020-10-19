@@ -1,12 +1,10 @@
-from django.core.mail import send_mail
+import functools
+
+from django.core.mail import send_mail as django_send_mail
 import asyncio
 
 loop = asyncio.get_event_loop()
 
 
-def enviar_correo(*args):
-    loop.run_in_executor(
-        None,
-        send_mail,
-        *args,
-    )
+def send_mail(*args, **kwargs):
+    loop.run_in_executor(None, functools.partial(django_send_mail, *args, **kwargs))

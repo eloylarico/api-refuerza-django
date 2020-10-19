@@ -1,0 +1,74 @@
+.cuerpo{
+  background: rgb(82 208 161);
+}
+.col-cuerpo{
+  background: white;
+  z-index: 2;
+}
+
+.div-logo{
+  border-bottom: 1px solid #EEEEEE;
+}
+
+.div-confirmada{
+  border:1px solid  #EEEEEE;
+}
+
+.texto-confirmada{
+  font-size: calc(11px + 1px);
+  font-weight: 600;
+}
+
+.texto-confirmada-2{
+  font-size: calc(10px + 1px);
+}
+
+.texto-div{
+  font-style: normal;
+  font-weight: normal;
+  font-size: calc(10px + 1px);
+  line-height: 15px;
+  text-align: justify;
+}
+
+.texto-div span{
+  font-weight: 600;
+}
+
+@media (min-width:500px){
+  .logo-img{
+    width: 40%;
+  }
+  .img-confirmada{
+    width: 100%;
+  }
+  .texto-confirmada{
+    font-size: calc(16px + 1px);
+  }
+  .texto-confirmada-2{
+    font-size: calc(13px + 1px);
+  }
+  .texto-div{
+    font-size: calc(13px + 1px);
+    line-height: calc(18px + 1px);
+  }
+}
+
+@media (min-width:900px){
+  .logo-img{
+    width: 30%;
+  }
+  .cuerpo-inferior{
+    padding-right: 20%!important;
+    padding-left: 20%!important;
+  }
+  .img-confirmada{
+    width: 70%;
+  }
+  .texto-confirmada{
+    font-size: calc(17px + 1px);
+  }
+  .texto-confirmada-2{
+    font-size: calc(14px + 1px);
+  }
+}

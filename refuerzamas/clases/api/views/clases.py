@@ -20,4 +20,4 @@ class ClasesUserViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewse
             return Clase.clases.filter(docente=self.request.user.perfil_docente)
 
         elif self.request.user.tipo_usuario == User.TUTOR:
-            return Clase.clases.filter(estudiante__tutor=self.request.user.perfil_tutor)
+            return Clase.clases.filter(estudiante__tutor=self.request.user.perfil_tutor).distinct()
