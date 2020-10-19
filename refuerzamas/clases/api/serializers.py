@@ -337,7 +337,9 @@ class MensajeModelSerializer(serializers.ModelSerializer):
     def get_tutor(self, mensaje):
         user = mensaje.user
         if user.tipo_usuario == User.ESTUDIANTE:
-            return user.perfil_estudiante.tutor.user_id
+            if user.perfil_estudiante.tutor:
+                return user.perfil_estudiante.tutor.user_id
+            return ""
         return ""
 
 
