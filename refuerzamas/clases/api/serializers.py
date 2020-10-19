@@ -50,7 +50,7 @@ class CursoModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Curso
-        fields = ("materia", "grado")
+        fields = ("id", "materia", "grado")
 
 
 class PaisModelSerializer(serializers.ModelSerializer):

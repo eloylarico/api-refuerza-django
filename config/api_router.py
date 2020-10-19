@@ -7,7 +7,7 @@ from refuerzamas.clases.api.views import (
     GenerosView,
     NivelesGradoView,
     ClasesUserViewSet,
-    DocenteViewSet, ChatViewSet, MensajeViewSet,
+    DocenteViewSet, ChatViewSet, MensajeViewSet, ReservaViewSet,
 )
 from refuerzamas.clases.api.views.instituciones import InstitucionViewSet
 
@@ -20,6 +20,7 @@ else:
 router.register(r"generos", GenerosView, basename="generos")
 router.register(r"niveles", NivelesGradoView, basename="niveles")
 router.register(r"clases", ClasesUserViewSet, basename="clases")
+router.register(r"reservas", ReservaViewSet, basename="reservas")
 
 router.register(r"docentes", DocenteViewSet, basename="docentes")
 router.register(r"chats", ChatViewSet, basename="chats")

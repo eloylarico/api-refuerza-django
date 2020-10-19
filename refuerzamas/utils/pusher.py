@@ -46,7 +46,7 @@ class PusherChannelsClient:
         self.pusher_client.trigger(canal, "mensaje", mensaje.data)
 
     def send_new_class_alert(self, reserva: Reserva):
-        canal = f"clases"
+        canal = f"clase-curso-{reserva.curso_id}"
         reserva = ClaseModelSerializer(reserva)
         self.pusher_client.trigger(canal, "clase_disponible", reserva.data)
 

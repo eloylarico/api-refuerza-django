@@ -8,6 +8,8 @@ from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from model_utils.models import TimeStampedModel
 from django.utils.translation import gettext_lazy as _
+from rest_framework import serializers
+
 from refuerzamas.ciudades.models import Ciudad
 from refuerzamas.clases.managers import ClasesManager
 
@@ -354,6 +356,15 @@ class Reserva(models.Model):
     class Meta:
         verbose_name = "Reserva"
         verbose_name_plural = "Reservas"
+
+    def asignar(self, docente_id):
+        if self.estado != Reserva.PENDIENTE:
+            raise ValidationError("Esta clase ya ha sido tomada")
+
+        self.docente_id = docente_id
+        self.estado = Reserva.ACTIVA
+        self.save()
+        return self
 
     def get_estudiante__user(self) -> User:
         return self.estudiante.user
