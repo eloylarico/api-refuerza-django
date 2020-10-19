@@ -8,7 +8,10 @@ from rest_framework.authtoken.views import obtain_auth_token
 
 # Views
 from refuerzamas.clases.api.views import UserDetailView
-from refuerzamas.utils.auth.views import obtain_estudiante_tutor_token, obtain_docente_token
+from refuerzamas.utils.auth.views import (
+    obtain_estudiante_tutor_token,
+    obtain_docente_token,
+)
 
 urlpatterns = [
     # Django Admin, use {% url 'admin:index' %}
@@ -25,6 +28,13 @@ urlpatterns += [
     path("api/auth-token/", obtain_auth_token),
     path("api/auth-token/docente", obtain_docente_token),
     path("api/auth-token/estudiante_tutor", obtain_estudiante_tutor_token),
+    # Metricas
+    path(
+        "adminchat/",
+        include(
+            ("administrar_chat.urls", "administrar_chat"), namespace="administrar_chat"
+        ),
+    ),
 ]
 
 if settings.DEBUG:

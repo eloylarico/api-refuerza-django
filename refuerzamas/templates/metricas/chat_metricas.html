@@ -1,0 +1,59 @@
+{% extends "metricas/partials/base.html" %}
+{% load static %}
+
+
+{% block 'extrahead_metrica' %}
+
+{% endblock 'extrahead_metrica' %}
+
+
+{% block title %}Administrador Chat{% endblock %}
+
+{% block content_title %}
+<h4 class="center-align">Administración de los Chat</h4>
+{% endblock content_title %}
+
+
+{% block content %}
+
+<div class="container">
+    <div class="row row-broken">
+        <div class="col-sm-3 col-xs-12">
+            <div class="col-inside-lg decor-default chat" style="overflow: hidden; outline: none;" tabindex="5000">
+                <div class="chat-users">
+                    <h6>Docente</h6>
+                    <form class="needs-validation" novalidate>
+
+                        <select id="list-docentes" class="mdb-select validate md-form" searchable="Search here..">
+                            <option value="" disabled selected>Seleccione un docente</option>
+                        </select>
+
+                    </form>
+                    <br>
+
+                    <div id="list-user2"></div>
+
+                </div>
+            </div>
+
+        </div>
+        <div class="col-sm-9 col-xs-12 chat"
+            style="overflow: hidden;outline: none;--darkreader-inline-outline: initial;" tabindex="5001"
+            data-darkreader-inline-outline="">
+            <div class="col-inside-lg decor-default">
+                <h6>Chat</h6>
+
+                <div class="chat-body" id="cuerpo-chat">
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="{% static 'js/admin_chat/logic_metrica_chat.js' %}"></script>
+<script src="{% static 'js/admin_chat/metrica_chat.js' %}"></script>
+{% endblock %}
