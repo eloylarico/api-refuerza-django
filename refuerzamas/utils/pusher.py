@@ -5,8 +5,8 @@ import pusher
 from pusher_push_notifications import PushNotifications
 from rest_framework.request import Request
 
-from refuerzamas.clases.api.serializers import MensajeModelSerializer
-from refuerzamas.clases.models import Chat, Mensaje
+from refuerzamas.clases.api.serializers import ClaseModelSerializer, MensajeModelSerializer
+from refuerzamas.clases.models import Chat, Mensaje, Reserva
 
 
 def load_pusher_channels_config():
@@ -44,6 +44,11 @@ class PusherChannelsClient:
         canal = f"chat-{chat.id}"
         mensaje = MensajeModelSerializer(mensaje)
         self.pusher_client.trigger(canal, "mensaje", mensaje.data)
+
+    def send_new_class_alert(self, reserva: Reserva):
+        canal = f"clases"
+        reserva = ClaseModelSerializer(reserva)
+        self.pusher_client.trigger(canal, "clase_disponible", reserva.data)
 
 
 class PusherBeamsClient:

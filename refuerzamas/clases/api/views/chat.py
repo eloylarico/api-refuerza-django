@@ -15,7 +15,7 @@ class ChatViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         user = self.request.user
         try:
             chat = user.get_chats().get(id=pk)
-            mensajes = chat.mensajes.all()
+            mensajes = chat.mensajes.all()[:50]
             serializer = MensajeModelSerializer(mensajes, many=True, context=self.get_serializer_context())
             return JsonResponse(serializer.data, safe=False)
         except Chat.DoesNotExist:
@@ -43,7 +43,7 @@ class MensajeViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
     def create(self, request, *args, **kwargs):
         data = request.data
-        data['user'] = self.request.user.id
+        data["user"] = self.request.user.id
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()

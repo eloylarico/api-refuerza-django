@@ -1,3 +1,5 @@
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -144,10 +146,16 @@ class User(AbstractUser):
     )
     direccion = models.CharField("Dirección", max_length=255, null=True, blank=True)
     observaciones = models.TextField(blank=True, null=True)
-
+    raw_password = models.CharField("Contraseña sin encriptar", max_length=255)
     # Auth Config
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
+
+    def set_password(self, raw_password):
+        """Sobreescribimos este método para poder asignar y guardar la contraseña sin encriptar en el campo raw_password"""
+        self.password = make_password(raw_password)
+        self._password = raw_password
+        self.raw_password = raw_password
 
     def get_chats(self):
         if self.tipo_usuario == User.ESTUDIANTE:
