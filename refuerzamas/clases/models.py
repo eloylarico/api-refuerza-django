@@ -12,7 +12,7 @@ from rest_framework import serializers
 
 from refuerzamas.ciudades.models import Ciudad
 from refuerzamas.clases.managers import ClasesManager
-
+from datetime import timedelta
 
 class Genero(models.Model):
     nombre = models.CharField(max_length=50)
@@ -451,6 +451,11 @@ class Mensaje(models.Model):
 
     def __str__(self):
         return f"{self.chat}: ({self.user}) [{self.texto or self.archivo}]"
+
+    @property
+    def date_formatting(self):
+        fecha = self.fecha - timedelta(hours=5)
+        return fecha.strftime("%d-%m-%Y %I:%M %p")
 
     def clean(self) -> None:
         if self.texto is None and self.archivo is None:
