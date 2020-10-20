@@ -69,7 +69,8 @@ def crear_chat(sender, instance: Reserva, created, **kwargs):
         return
 
     Chat.objects.get_or_create(user1=instance.docente.user, user2=instance.estudiante.user)
-    Chat.objects.get_or_create(user1=instance.docente.user, user2=instance.estudiante.tutor.user)
+    if instance.estudiante.tutor is not None:
+        Chat.objects.get_or_create(user1=instance.docente.user, user2=instance.estudiante.tutor.user)
 
 
 @receiver(post_save, sender=Reserva)
