@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import user_passes_test
 from refuerzamas.clases.models import Chat, Docente, User
 
 # Serializer
-from .serializers import AdminChatModelSerializer, AdminChatMensajeModelSerializer
+from refuerzamas.administrar_chat.serializers import AdminChatModelSerializer, AdminChatMensajeModelSerializer
 
 
 @user_passes_test(lambda u: u.is_active and u.is_staff)
@@ -20,7 +20,7 @@ def list_docentes(request):
 
 @user_passes_test(lambda u: u.is_active and u.is_staff)
 def list_chat_of_docente(request, id_docente):
-    chat = Chat.objects.filter(user1__id=id_docente)
+    chat = Chat.objects.filter(user1__id=id_docente, activo=True).exclude(mensajes=None)
     serializer = AdminChatModelSerializer(chat, many=True)
     return JsonResponse(serializer.data, safe=False)
 
