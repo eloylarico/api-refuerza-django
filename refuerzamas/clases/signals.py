@@ -99,14 +99,13 @@ def enviar_notificaciones_docentes(sender, instance: Reserva, created, **kwargs)
 
 @receiver(post_save, sender=Reserva)
 def enviar_correo_alumno(sender, instance: Reserva, created, **kwargs):
-    if instance.estado == Reserva.ACTIVA:
+    if instance.estado == Reserva.PENDIENTE:
         subject = "Clase confirmada - Refuerza+"
         html_message = render_to_string(
             "mail/clase_confirmada_alumno.html",
             {
                 "reserva": instance,
                 "estudiante": instance.estudiante.user,
-                "docente": instance.docente.user,
             },
         )
         plain_message = strip_tags(html_message)

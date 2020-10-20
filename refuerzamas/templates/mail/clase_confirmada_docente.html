@@ -1,68 +1,148 @@
-<!DOCTYPE html>
-{% load static %}
-
+<!doctype html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bienvenido a Refuerzamas</title>
-  {#  <link rel="stylesheet" href="{% static 'mail/css/bootstrap.min.css' %}">#}
-  {#  <link rel="stylesheet" href="{% static 'mail/css/estilos.css' %}">#}
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+    rel="stylesheet">
+  <title>Refuerza+ | Clase confirmada</title>
+  <style>
+    * {
+      font-family: 'Poppins', sans-serif;
+      color: black;
+    }
+
+    .fondo {
+      background-image: url("https://refuerzamas.s3.us-east-2.amazonaws.com/email-assets/fondo.png");
+      background-size: cover;
+      width: 100%;
+      display: block;
+      padding: 0;
+      margin: 0 auto;
+    }
+
+    .columna-central {
+      background-color: #fff;
+      width: 74%;
+      display: block;
+      margin: 0 auto;
+      padding-top: 36px;
+    }
+
+    .logo {
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+
+    }
+
+    .separador {
+      border: 1px solid #EEEEEE;
+      flex-basis: 100%;
+      margin: 2em 0;
+    }
+
+    .container_contenido {
+      width: 90%;
+      margin: 0 auto;
+      display: block;
+    }
+
+    .container_imagen {
+      width: 100%;
+      display: flex;
+      margin: 0 auto 2em;
+      border: 1px solid #EEEEEE;
+      justify-content: space-around;
+    }
+
+    .imagen_alumno {
+      object-fit: contain;
+      width: 50%;
+      display: block;
+      margin: auto 3%;
+    }
+
+    .imagen_descripcion {
+      max-width: 40%;
+      display: block;
+      margin: auto 3%;
+    }
+
+    .texto {
+      width: 100%;
+    }
+  </style>
 </head>
-<body class="cuerpo">
+<body class="fondo">
+<div class="columna-central">
+  <img src="https://refuerzamas.s3.us-east-2.amazonaws.com/email-assets/refuerzamas_logo.png" alt="logo_refuerza"
+       class="logo">
+  <hr class="separador">
+  <div class="container_contenido">
+    <div class="container_imagen">
+      <img class="imagen_alumno" src="https://refuerzamas.s3.us-east-2.amazonaws.com/email-assets/imagen_alumno.png"
+           alt="imagen_alumno">
+      <p class="imagen_descripcion">
+        <b><span style="font-size: 12px">¡Clase confirmada!</span></b>
+        <br>
+        <span style="font-size: 10px"> Gracias por confiar en Refuerzamas.</span>
+      </p>
+    </div>
+    <div class="texto">
+      Hey :)
+      <br/>
+      <br/>
+      ¿Cómo estás? Tienes una clase confirmada por {{ estudiante.display_name }}.
+      <br/>
+      <br/>
+      <b>Te recordamos que tu clase es:</b>
+      <br/>
+      <br/>
+      <span><b>{{ reserva.hora_inicio|date:"l d \d\e F" }}</b></span> <br/>
+      <span><b>Hora Perú:</b> {{ reserva.hora_inicio|time:"h\:sa" }}</span> <br/>
+      <span><b>Curso:</b> {{ reserva.curso.materia.nombre }} </span> <br/>
 
-<div class="row w-100 mr-0 ml-0">
+      <br/>
+      <br/>
+      <b>¿¿Por dónde dictaré mi clase?</b>
+      <br/>
+      <br/>
+      <span>Podrás entrar a la videollamada dando click <a target="_blank"
+                                                           href="{{ reserva.enlace_videollamada }}">aquí</a></span>
+      <br/>
+      <br/>
+      <span>¿Puedo ver la información de mi clase o hablar con el alumno? </span>
+      <br>
+      <br>
+      <span>Mediante la aplicación de Refuerza más que la podrás descargar dando click <a target="_blank"
+                                                                                          href="https://docentes.refuerzamas.com">aquí</a>.</span>
+      <br>
+      <br>
+      <b>¿Cuál es mi usuario y contraseña?</b>
+      <br/>
+      <br/>
+      <span><b>Usuario:</b> {{ docente.email }}</span><br>
+      <span><b>Contraseña:</b> {{ docente.raw_password }} </span>
+      <br/>
+      <br/>
+      Recuerda no compartir estos datos, ya que no podrás cambiar tu contraseña posteriormente.
+      <br/>
+      <br/>
+      <br/>
+      Una vez más gracias por ser parte de Refuerza +.
+      <br/>
+      <br/>
+      <br/>
 
-  <div class="h-100 col-1 col-lg-2 pl-0 d-flex">
-    <img src="{% static 'img/fondo-1.svg' %}" alt="">
-    <img src="{% static 'img/fondo-1.svg' %}" alt="">
-  </div>
-
-
-  <div class="col-10 col-lg-8 px-0 col-cuerpo">
-    <div class="w-100 d-flex justify-content-center pr-0 ml-0 pt-4 pb-4 div-logo">
-      <img class="logo-img" width="50%" src="{% static 'img/logo.svg" alt' %}">
     </div>
 
-    <div class="container cuerpo-inferior pt-3">
-      <div class="row div-confirmada m-0">
-        <div class="col-6 py-4">
-          <img class="img-confirmada" width="130%" src="{% static 'img/img-2.svg' %}" alt="">
-
-        </div>
-        <div class="col-6 pt-5">
-          <p class="texto-confirmada mb-2">¡Clase confirmada!</p>
-          <p class="texto-confirmada-2">Gracias por confiar en Refuerzamas.</p>
-        </div>
-      </div>
-
-      <div class="texto-div mt-4">
-        <p>Hey :) <br> <br>
-          ¿Cómo estás? Esperamos que muy bien. Tienes una clase confirmada por Rodrigo Chambe Lupaca. <br> <br>
-          <span>Te recordamos que tu clase es:</span><br> <br>
-          <span>Hora Perú:</span> {{ reserva.hora_inicio|time:"h\:sa" }}<br>
-          <span>Curso:</span> {{ reserva.curso.materia.nombre }} <br> <br>
-          <span>¿Por donde dictaré mi clase? </span> <br> <br>
-          Podrás entrar a la videollamada dando click <a target="_blank"
-                                                         href="{{ reserva.enlace_videollamada }}">aquí</a> <br> <br>
-          <span>¿Puedo ver la información de mi clase o hablar con el alumno? </span> <br> <br>
-          Mediante la aplicación de Refuerza más que la podrás descargar dando click <a target="_blank" href="https://docentes.refuerzamas.com">aquí</a>.<br>
-          <br>
-          <span>¿Cuál es mi usuario y contraseña?</span> <br>
-          <span>Usuario:</span> {{ docente.email }} <br>
-          <span>Contraseña:</span> {{ docente.raw_password }} <br> <br>
-          Recuerda no compartir estos datos, ya que no podrás cambiar tu contraseña posteriormente. <br> <br>
-          Una vez más gracias por ser parte de Refuerza +.
-        </p>
-      </div>
-    </div>
   </div>
 
-
-  <div class="col-1 col-lg-2 pr-0" style="display: flex;justify-content: flex-end;">
-    <img class="" src="mail/img/fondo-2.svg" alt="">
-    <img class="" src="mail/img/fondo-2.svg" alt="">
-  </div>
 </div>
+
 </body>
 </html>
