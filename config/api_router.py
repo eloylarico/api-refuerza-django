@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter, SimpleRouter
 # Genero
 # from refuerzamas.clases.api.views import DocenteViewSet
 from refuerzamas.clases.api.views import (
-    GenerosView,
+    EstudianteViewSet, GenerosView,
     NivelesGradoView,
     ClasesUserViewSet,
     DocenteViewSet, ChatViewSet, MensajeViewSet, ReservaViewSet,
@@ -23,6 +23,7 @@ router.register(r"clases", ClasesUserViewSet, basename="clases")
 router.register(r"reservas", ReservaViewSet, basename="reservas")
 
 router.register(r"docentes", DocenteViewSet, basename="docentes")
+router.register(r"estudiantes", EstudianteViewSet, basename="estudiantes")
 router.register(r"chats", ChatViewSet, basename="chats")
 router.register(r"mensajes", MensajeViewSet, basename="mensajes")
 router.register(r"instituciones", InstitucionViewSet, basename="instituciones")

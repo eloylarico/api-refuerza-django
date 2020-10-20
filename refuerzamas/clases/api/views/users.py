@@ -79,3 +79,10 @@ class DocenteViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
         if self.action == "list":
             queryset = queryset.order_by("?")[:5]
         return queryset
+
+
+class EstudianteViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    serializer_class = UserEstudianteModelSerializer
+    queryset = User.objects.filter(tipo_usuario=User.ESTUDIANTE).order_by('?')[:5]
+
+
