@@ -42,3 +42,11 @@ class ReservaViewSet(viewsets.GenericViewSet):
         except ModelValidationError:
             raise ValidationError("Esta clase ya ha sido tomada")
         return Response(serializer.data)
+
+    @action(detail=False, methods=["GET"])
+    def ultimo(self, request):
+        user = self.request.user
+        cursos = user.perfil_docente.cursos.values_list('id', flat=True)
+        reserva = Reserva.objects.filter(curso_id__in=cursos, estado=Reserva.PENDIENTE).last()
+        serializer = ClaseModelSerializer(reserva)
+        return Response(serializer.data)
