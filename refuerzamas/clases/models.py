@@ -1,14 +1,8 @@
-from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Q
-from django.db.models.signals import post_save, pre_save
-from django.dispatch import receiver
-from model_utils.models import TimeStampedModel
-from django.utils.translation import gettext_lazy as _
-from rest_framework import serializers
+from django.utils import timezone
 
 from refuerzamas.ciudades.models import Ciudad
 from refuerzamas.clases.managers import ClasesManager
@@ -56,7 +50,7 @@ class Institucion(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        verbose_name=_("Ciudad"),
+        verbose_name="Ciudad",
         help_text="Campo que referencia a la ciudad del doctor en la aplicación",
     )
     nivel = models.ForeignKey(
@@ -371,6 +365,12 @@ class Reserva(models.Model):
 
     def clean(self) -> None:
         # Comprobrando horas de inicio y fin
+        if self.hora_inicio is None:
+            raise ValidationError("Debes colocoar una hora de inicio válida")
+
+        if self.hora_fin is None:
+            raise ValidationError("Debes colocoar una hora de fin válida")
+
         if self.hora_inicio > self.hora_fin:
             raise ValidationError("La hora de inicio no puede ser mayor a la hora de fin")
 
