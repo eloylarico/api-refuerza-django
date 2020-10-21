@@ -410,7 +410,7 @@ class Chat(models.Model):
     user2 = models.ForeignKey(
         User, verbose_name="Tutor o Estudiante", on_delete=models.PROTECT, related_name="chats_estudiante_o_tutor"
     )
-    activo = models.BooleanField(verbose_name="Si esta activado, se le mostrará a los usuarios este chat", default=True)
+    activo = models.BooleanField(help_text="Si esta activado, se le mostrará a los usuarios este chat", default=True)
 
     class Meta:
         ordering = ["-id"]
