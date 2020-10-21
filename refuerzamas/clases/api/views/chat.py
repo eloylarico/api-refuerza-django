@@ -34,7 +34,7 @@ class ChatViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             raise Http404
 
     def get_queryset(self):
-        return self.request.user.get_chats()
+        return self.request.user.get_chats().filter(activo=True)
 
 
 class MensajeViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
