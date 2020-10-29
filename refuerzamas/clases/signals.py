@@ -90,11 +90,14 @@ def enviar_señal_docentes(sender, instance: Reserva, created, **kwargs):
 @receiver(post_save, sender=Reserva)
 def enviar_notificaciones_docentes(sender, instance: Reserva, created, **kwargs):
     if instance.estado == Reserva.PENDIENTE:
-        body = f"Hay una nueva clase disponible de {instance.curso.materia.nombre}"
         pusher_beams_client = PusherBeamsClient()
-        pusher_beams_client.send_notification_to_interests(
-            interests=[f"curso-{instance.curso_id}"], title="Nueva clase disponible", body=body
-        )
+        title = f"Clase disponible de {instance.curso.materia.nombre}"
+        body = f"Hay una nueva clase disponible de {instance.curso.grado.nombre} de {instance.curso.grado.nivel.nombre}, el {instance.hora_inicio.strftime('%d/%m/%Y')} a las {instance.hora_inicio.strftime('%H:%M')} "
+
+        pusher_beams_client.send_new_class_notification(title, body)
+        # pusher_beams_client.send_notification_to_interests(
+        #     interests=[f"curso-{instance.curso_id}"], title="Nueva clase disponible", body=body
+        # )
 
 
 @receiver(post_save, sender=Reserva)
@@ -158,6 +161,7 @@ def enviar_mensaje_pusher(sender, instance: Mensaje, created, **kwargs):
         return
     pusher_client = PusherChannelsClient()
     pusher_client.send_chat_message(chat=instance.chat, mensaje=instance)
+
 
 #
 # @receiver(post_save, sender=Mensaje)

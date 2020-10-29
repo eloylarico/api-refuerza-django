@@ -68,7 +68,8 @@ class PusherBeamsClient:
             secret_key=pusher_beams_secret_key,
         )
 
-    def send_notification_to_interests(self, interests: List[str], title: str, body: str):
+    def send_new_class_notification(self, title: str, body: str):
+        interests = ["nueva-clase"]
         publish_body = {
             "apns": {
                 "aps": {
@@ -92,3 +93,28 @@ class PusherBeamsClient:
             },
         }
         self.pusher_beams_client.publish_to_interests(interests, publish_body)
+
+    # def send_notification_to_interests(self, interests: List[str], title: str, body: str):
+    #     publish_body = {
+    #         "apns": {
+    #             "aps": {
+    #                 "alert": {
+    #                     "title": title,
+    #                     "body": body,
+    #                 },
+    #             },
+    #         },
+    #         "fcm": {
+    #             "notification": {
+    #                 "title": title,
+    #                 "body": body,
+    #             },
+    #         },
+    #         "web": {
+    #             "notification": {
+    #                 "title": title,
+    #                 "body": body,
+    #             },
+    #         },
+    #     }
+    #     self.pusher_beams_client.publish_to_interests(interests, publish_body)
