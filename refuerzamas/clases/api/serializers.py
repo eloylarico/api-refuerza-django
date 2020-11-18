@@ -125,6 +125,13 @@ class DocenteModelSerializer(serializers.ModelSerializer):
 
 
 class TutorModelSerializer(serializers.ModelSerializer):
+    class TuteladoUserSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = User
+            fields = ["display_name", "short_display_name"]
+
+    tutelados = TuteladoUserSerializer(source="get_tutelados__user", many=True)
+
     class Meta:
         model = Tutor
         fields = "__all__"
@@ -134,6 +141,7 @@ class UserTutorModelSerializer(serializers.ModelSerializer):
     genero = GenerosSerializer(required=False, read_only=True)
     perfil_tutor = TutorModelSerializer(required=False)
     display_name = serializers.CharField(read_only=True)
+    short_display_name = serializers.CharField(read_only=True)
 
     genero_id = serializers.IntegerField(required=False, allow_null=True)
 
@@ -145,6 +153,7 @@ class UserTutorModelSerializer(serializers.ModelSerializer):
             "last_name",
             "username",
             "display_name",
+            "short_display_name",
             "nickname",
             "tipo_usuario",
             "avatar",
@@ -194,6 +203,7 @@ class UserEstudianteModelSerializer(serializers.ModelSerializer):
     genero = GenerosSerializer(required=False, read_only=True)
     perfil_estudiante = EstudianteModelSerializer(required=False)
     display_name = serializers.CharField(read_only=True)
+    short_display_name = serializers.CharField(read_only=True)
     genero_id = serializers.IntegerField(required=False, allow_null=True)
 
     class Meta:
@@ -204,6 +214,7 @@ class UserEstudianteModelSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "display_name",
+            "short_display_name",
             "nickname",
             "tipo_usuario",
             "avatar",
@@ -215,7 +226,6 @@ class UserEstudianteModelSerializer(serializers.ModelSerializer):
             "genero",
             "perfil_estudiante",
             "genero_id",
-            "display_name"
         )
         read_only_fields = (
             "email",
@@ -255,6 +265,7 @@ class UserDocenteModelSerializer(serializers.ModelSerializer):
     genero = GenerosSerializer(required=False, read_only=True)
     perfil_docente = DocenteModelSerializer(required=False)
     display_name = serializers.CharField(read_only=True)
+    short_display_name = serializers.CharField(read_only=True)
 
     genero_id = serializers.IntegerField(required=False, allow_null=True)
 
@@ -265,6 +276,7 @@ class UserDocenteModelSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "username",
+            "short_display_name",
             "display_name",
             "nickname",
             "tipo_usuario",
@@ -276,7 +288,7 @@ class UserDocenteModelSerializer(serializers.ModelSerializer):
             "observaciones",
             "genero",
             "perfil_docente",
-            "genero_id"
+            "genero_id",
         )
         read_only_fields = (
             "email",
@@ -364,7 +376,7 @@ class UserModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "display_name", "avatar", "tipo_usuario", "perfil_tutor"]
+        fields = ["id", "display_name", "short_display_name", "avatar", "tipo_usuario", "perfil_tutor"]
 
 
 class ChatModelSerializer(serializers.ModelSerializer):

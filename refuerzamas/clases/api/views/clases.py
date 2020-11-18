@@ -19,13 +19,15 @@ class ClasesUserViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewse
 
     def get_queryset(self):
         if self.request.user.tipo_usuario == User.ESTUDIANTE:
-            return Clase.clases.filter(estudiante=self.request.user.perfil_estudiante)
+            return Clase.clases.filter(estado=Reserva.ACTIVA, estudiante=self.request.user.perfil_estudiante)
 
         elif self.request.user.tipo_usuario == User.DOCENTE:
-            return Clase.clases.filter(docente=self.request.user.perfil_docente)
+            return Clase.clases.filter(estado=Reserva.ACTIVA, docente=self.request.user.perfil_docente)
 
         elif self.request.user.tipo_usuario == User.TUTOR:
-            return Clase.clases.filter(estudiante__tutor=self.request.user.perfil_tutor).distinct()
+            return Clase.clases.filter(
+                estado=Reserva.ACTIVA, estudiante__tutor=self.request.user.perfil_tutor
+            ).distinct()
 
 
 class ReservaViewSet(viewsets.GenericViewSet):
@@ -46,7 +48,7 @@ class ReservaViewSet(viewsets.GenericViewSet):
     @action(detail=False, methods=["GET"])
     def ultimo(self, request):
         user = self.request.user
-        cursos = user.perfil_docente.cursos.values_list('id', flat=True)
+        cursos = user.perfil_docente.cursos.values_list("id", flat=True)
         reserva = Reserva.objects.filter(curso_id__in=cursos, estado=Reserva.PENDIENTE).last()
         serializer = ClaseModelSerializer(reserva)
         return Response(serializer.data)

@@ -8,6 +8,7 @@ from refuerzamas.ciudades.models import Ciudad
 from refuerzamas.clases.managers import ClasesManager
 from datetime import timedelta
 
+
 class Genero(models.Model):
     nombre = models.CharField(max_length=50)
 
@@ -170,6 +171,10 @@ class User(AbstractUser):
     def display_name(self):
         # if self.get_full_name() != "":
         return self.get_full_name() or self.username or self.email
+
+    @property
+    def short_display_name(self):
+        return self.display_name[:15]
 
     def clean(self) -> None:
         if (self.is_staff or self.is_superuser) and self.tipo_usuario is not None:
