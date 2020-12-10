@@ -12,6 +12,7 @@ from django.forms import widgets
 from django.http import HttpRequest
 
 from refuerzamas.clases.models import (
+    ChatUser,
     Clase,
     Curso,
     Genero,
@@ -25,7 +26,9 @@ from refuerzamas.clases.models import (
     Estudiante,
     Tutor,
     Reserva,
-    User, Chat, Mensaje,
+    User,
+    Chat,
+    Mensaje,
 )
 
 
@@ -397,19 +400,16 @@ class CursoAdmin(ModelAdmin):
     ]
 
 
-
-class MensajeInlineAdmin(admin.TabularInline):
-    model = Mensaje
-    extra = 1
+class ChatUserInlineAdmin(admin.TabularInline):
+    model = ChatUser
+    extra = 2
 
 
 @register(Chat)
 class ChatAdmin(ModelAdmin):
-    inlines = [MensajeInlineAdmin]
-    list_display = [
-        "user1",
-        "user2",
-    ]
+    inlines = [ChatUserInlineAdmin]
+    list_display = ["id", "titulo", "imagen"]
+
 
 # @register(Mensaje)
 # class MensajeAdmin(ModelAdmin):

@@ -4,6 +4,7 @@ from rest_framework import serializers
 # Model
 from refuerzamas.clases.models import (
     Chat,
+    ChatUser,
     Mensaje,
     User,
     Estudiante,
@@ -355,37 +356,63 @@ class ClaseModelSerializer(serializers.ModelSerializer):
         )
 
 
+# class MensajeModelSerializer(serializers.ModelSerializer):
+#     tutor = serializers.SerializerMethodField()
+#
+#     class Meta:
+#         model = Mensaje
+#         fields = "__all__"
+#
+#     def get_tutor(self, mensaje):
+#         user = mensaje.user
+#         if user.tipo_usuario == User.ESTUDIANTE:
+#             if user.perfil_estudiante.tutor:
+#                 return user.perfil_estudiante.tutor.user_id
+#             return ""
+#         return ""
 class MensajeModelSerializer(serializers.ModelSerializer):
-    tutor = serializers.SerializerMethodField()
+    user = serializers.SerializerMethodField("serialize_user")
+    chat_id = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = Mensaje
-        fields = "__all__"
+        fields = ["texto", "archivo", "chat_id", "user"]
+        read_only_fields = ["user"]
 
-    def get_tutor(self, mensaje):
-        user = mensaje.user
-        if user.tipo_usuario == User.ESTUDIANTE:
-            if user.perfil_estudiante.tutor:
-                return user.perfil_estudiante.tutor.user_id
-            return ""
-        return ""
+    def serialize_user(self, mensaje: Mensaje):
+        if mensaje.chat_user.user.tipo_usuario == User.ESTUDIANTE:
+            return UserEstudianteModelSerializer(mensaje.chat_user.user).data
+        if mensaje.chat_user.user.tipo_usuario == User.DOCENTE:
+            return UserDocenteModelSerializer(mensaje.chat_user.user).data
+        if mensaje.chat_user.user.tipo_usuario == User.ESTUDIANTE:
+            return UserTutorModelSerializer(mensaje.chat_user.user).data
+
+    def validate_chat_id(self, value):
+        try:
+            Chat.objects.get(id=value)
+            return value
+        except Chat.DoesNotExist:
+            raise serializers.ValidationError("El id del chat que  has envíado no existe")
+
+    def create(self, validated_data):
+        chat_id = validated_data.pop("chat_id")
+        chat_user, _ = ChatUser.objects.get_or_create(user=self.context["request"].user, chat_id=chat_id)
+        return chat_user.mensajes.create(**validated_data)
 
 
-class UserModelSerializer(serializers.ModelSerializer):
-    perfil_tutor = TutorModelSerializer()
-
-    class Meta:
-        model = User
-        fields = ["id", "display_name", "short_display_name", "avatar", "tipo_usuario", "perfil_tutor"]
+# class UserModelSerializer(serializers.ModelSerializer):
+#     perfil_tutor = TutorModelSerializer()
+#
+#     class Meta:
+#         model = User
+#         fields = ["id", "display_name", "short_display_name", "avatar", "tipo_usuario", "perfil_tutor"]
+#
 
 
 class ChatModelSerializer(serializers.ModelSerializer):
-    ultimo_mensaje = MensajeModelSerializer(read_only=True)
-    mensajes_no_revisados_estudiante = serializers.IntegerField(read_only=True)
-    mensajes_no_revisados_profesor = serializers.IntegerField(read_only=True)
-    user1 = UserModelSerializer(read_only=True)
-    user2 = UserModelSerializer(read_only=True)
+    ultimo_mensaje = MensajeModelSerializer(source="get_ultimo_mensaje")
 
     class Meta:
         model = Chat
-        exclude = ["activo"]
+        fields = ["titulo", "imagen", "ultimo_mensaje", "activo"]
+        read_only_fields = ["ultimo_mensaje"]

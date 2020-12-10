@@ -156,16 +156,17 @@ class User(AbstractUser):
         self.raw_password = raw_password
 
     def get_chats(self):
-        if self.tipo_usuario == User.ESTUDIANTE:
-            return Chat.objects.filter(user2=self)
-
-        elif self.tipo_usuario == User.TUTOR:
-            tutelados_user_id = self.perfil_tutor.tutelados.values_list("user_id", flat=True)
-            chats = Chat.objects.filter(user2_id__in=tutelados_user_id) | Chat.objects.filter(user2=self)
-            return chats
-
-        elif self.tipo_usuario == User.DOCENTE:
-            return Chat.objects.filter(user1=self)
+        return Chat.objects.filter(chats_users__user=self)
+        # if self.tipo_usuario == User.ESTUDIANTE:
+        #     return Chat.objects.filter(user2=self)
+        #
+        # elif self.tipo_usuario == User.TUTOR:
+        #     tutelados_user_id = self.perfil_tutor.tutelados.values_list("user_id", flat=True)
+        #     chats = Chat.objects.filter(user2_id__in=tutelados_user_id) | Chat.objects.filter(user2=self)
+        #     return chats
+        #
+        # elif self.tipo_usuario == User.DOCENTE:
+        #     return Chat.objects.filter(user1=self)
 
     @property
     def display_name(self):
@@ -408,54 +409,54 @@ class Clase(Reserva):
 
 class Chat(models.Model):
     """
-    Un chat entre 2 usuarios, por conveniencia colocaremos como user1 siempre al docente
+    Un chat entre usuarios
     """
 
-    user1 = models.ForeignKey(User, verbose_name="Docente", on_delete=models.PROTECT, related_name="chats_docente")
-    user2 = models.ForeignKey(
-        User, verbose_name="Tutor o Estudiante", on_delete=models.PROTECT, related_name="chats_estudiante_o_tutor"
-    )
-    activo = models.BooleanField(help_text="Si esta activado, se le mostrará a los usuarios este chat", default=True)
+    titulo = models.CharField("Título", null=True, blank=True, max_length=50)
+    imagen = models.ImageField("Imagen", null=True, blank=True, upload_to="clases/chats/imagen")
+    activo = models.BooleanField(default=True)
 
     class Meta:
         ordering = ["-id"]
 
-    @property
-    def mensajes_no_revisados_estudiante(self):
-        return self.mensajes.filter(visto=False, user=self.user1).count()
+    def get_mensajes(self):
+        return Mensaje.objects.filter(chat_user__chat=self).order_by("-fecha")
 
-    @property
-    def mensajes_no_revisados_profesor(self):
-        return self.mensajes.filter(visto=False, user=self.user2).count()
-
-    @property
-    def ultimo_mensaje(self):
-        return self.mensajes.first()
-
-    def clean(self) -> None:
-        if self.user1.tipo_usuario != User.DOCENTE:
-            raise ValidationError("El usuario 1 debe ser del tipo DOCENTE")
-
-        if self.user2.tipo_usuario != User.ESTUDIANTE and self.user2.tipo_usuario != User.TUTOR:
-            raise ValidationError("El usuario 2 debe ser del tipo ESTUDIANTE O TUTOR")
+    def get_ultimo_mensaje(self):
+        # Se trae el primer mensaje porque está ordenado por fecha
+        return self.get_mensajes().first()
 
     def __str__(self):
-        return f"Docente: {self.user1} - Tutor/Estudiante: {self.user2}"
+        return self.titulo or f"Chat {self.id}"
+
+
+class ChatUser(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="chats_users")
+    chat = models.ForeignKey(Chat, on_delete=models.CASCADE, related_name="chats_users")
+
+    # def clean(self) -> None:
+    #     if self.user.tipo_usuario is None:
+    #         raise ValidationError("Para que un usuario esté en un chat debe ser de tipo Docente, Alumno o Tutor.")
+
+    def __str__(self):
+        return f"{self.chat}: {self.user}"
 
 
 class Mensaje(models.Model):
-    user = models.ForeignKey(User, verbose_name="Usuario", on_delete=models.PROTECT, related_name="mensajes")
-    chat = models.ForeignKey(Chat, verbose_name="Chat", on_delete=models.CASCADE, related_name="mensajes")
+    chat_user = models.ForeignKey(ChatUser, on_delete=models.CASCADE, related_name="mensajes")
     texto = models.TextField(blank=True, null=True)
     archivo = models.FileField(upload_to="clases/mensajes/archivos", blank=True, null=True)
     fecha = models.DateTimeField("Fecha y hora del mensaje", auto_now_add=True)
     visto = models.BooleanField(default=False)
 
+    def get_user(self):
+        return self.chat_user.user
+
     class Meta:
         ordering = ["-fecha"]
 
     def __str__(self):
-        return f"{self.chat}: ({self.user}) [{self.texto or self.archivo}]"
+        return f"{self.chat_user}: [{self.texto or self.archivo}]"
 
     @property
     def date_formatting(self):
@@ -465,6 +466,3 @@ class Mensaje(models.Model):
     def clean(self) -> None:
         if self.texto is None and self.archivo is None:
             raise ValidationError("Debes enviar al menos un texto o un archivo para que sea un mensaje válido.")
-
-        if self.user_id != self.chat.user1_id and self.user_id != self.chat.user2_id:
-            raise ValidationError("El usuario que envía el mensaje no forma parte de este chat.")

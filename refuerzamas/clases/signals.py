@@ -160,7 +160,7 @@ def enviar_mensaje_pusher(sender, instance: Mensaje, created, **kwargs):
     if not created:
         return
     pusher_client = PusherChannelsClient()
-    pusher_client.send_chat_message(chat=instance.chat, mensaje=instance)
+    pusher_client.send_chat_message(chat=instance.chat_user.chat, mensaje=instance)
 
 
 #
