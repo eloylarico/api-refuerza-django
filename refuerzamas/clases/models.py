@@ -2,6 +2,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 
 from refuerzamas.ciudades.models import Ciudad
@@ -426,8 +427,17 @@ class Chat(models.Model):
         # Se trae el primer mensaje porque está ordenado por fecha
         return self.get_mensajes().first()
 
-    def __str__(self):
-        return self.titulo or f"Chat {self.id}"
+    def get_imagen(self, current_user: User):
+        if self.imagen.name:
+            return self.imagen
+        elif self.chats_users.all().count() >= 2:
+            return self.chats_users.filter(~Q(user_id=current_user.id)).first().user.avatar
+        else:
+            return None
+
+
+def __str__(self):
+    return self.titulo or f"Chat {self.id}"
 
 
 class ChatUser(models.Model):
