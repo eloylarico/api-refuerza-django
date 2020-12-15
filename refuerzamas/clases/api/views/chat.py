@@ -26,24 +26,22 @@ class ChatViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         paginator = MensajesPagination()
         page = paginator.paginate_queryset(queryset=mensajes, request=request)
         if page is not None:
-            serializer = MensajeModelSerializer(page, many=True)
+            serializer = MensajeModelSerializer(page, many=True, context=self.get_serializer_context())
             return paginator.get_paginated_response(serializer.data)
         serializer = MensajeModelSerializer(mensajes, many=True, context=self.get_serializer_context())
         return Response(serializer.data)
 
-
-#
-# @action(detail=True, methods=["POST"])
-# def revisado(self, request, pk=None):
-#     user = self.request.user
-#     try:
-#         chat = user.get_chats().get(id=pk)
-#         chat.mensajes.exclude(user=user).filter(visto=False).update(visto=True)
-#         chats = user.get_chats()
-#         serializer = self.get_serializer(chats, many=True)
-#         return Response(serializer.data)
-#     except Chat.DoesNotExist:
-#         raise Http404
+    # @action(detail=True, methods=["POST"])
+    # def revisado(self, request, pk=None):
+    #     user = self.request.user
+    #     try:
+    #         chat = user.get_chats().get(id=pk)
+    #         chat.mensajes.exclude(user=user).filter(visto=False).update(visto=True)
+    #         chats = user.get_chats()
+    #         serializer = self.get_serializer(chats, many=True)
+    #         return Response(serializer.data)
+    #     except Chat.DoesNotExist:
+    #         raise Http404
 
 
 class MensajeViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):

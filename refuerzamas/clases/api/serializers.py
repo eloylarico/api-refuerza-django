@@ -376,7 +376,7 @@ class MensajeModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Mensaje
-        fields = ["texto", "archivo", "chat_id", "user", "id", "fecha"]
+        fields = ["texto", "archivo", "chat_id", "user", "id", "fecha", "estado"]
         read_only_fields = ["user"]
 
     def serialize_user(self, mensaje: Mensaje):

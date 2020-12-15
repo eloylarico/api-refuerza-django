@@ -422,7 +422,7 @@ class Chat(models.Model):
 
     @property
     def mensajes_no_vistos(self):
-        return Mensaje.objects.filter(chat_user__chat=self, visto=False).count()
+        return Mensaje.objects.filter(chat_user__chat=self).count()
 
     def get_mensajes(self):
         return Mensaje.objects.filter(chat_user__chat=self).order_by("-fecha")
@@ -470,11 +470,25 @@ class ChatUser(models.Model):
 
 
 class Mensaje(models.Model):
+    # Choices
+    VISTO = "VISTO"
+    ENTREGADO = "ENTREGADO"
+    ESTADO_MENSAJES_CHOICES = [
+        (VISTO, "Visto"),
+        (ENTREGADO, "Entregado"),
+    ]
+
     chat_user = models.ForeignKey(ChatUser, on_delete=models.CASCADE, related_name="mensajes")
     texto = models.TextField(blank=True, null=True)
     archivo = models.FileField(upload_to="clases/mensajes/archivos", blank=True, null=True)
     fecha = models.DateTimeField("Fecha y hora del mensaje", auto_now_add=True)
-    visto = models.BooleanField(default=False)
+    # visto = models.BooleanField(default=False)
+    estado = models.CharField(
+        "Estado de mensaje",
+        max_length=15,
+        choices=ESTADO_MENSAJES_CHOICES,
+        default=ENTREGADO
+    )
 
     def get_user(self):
         return self.chat_user.user
