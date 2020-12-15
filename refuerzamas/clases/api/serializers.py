@@ -376,7 +376,7 @@ class MensajeModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Mensaje
-        fields = ["texto", "archivo", "chat_id", "user", "id"]
+        fields = ["texto", "archivo", "chat_id", "user", "id", "fecha"]
         read_only_fields = ["user"]
 
     def serialize_user(self, mensaje: Mensaje):
@@ -412,10 +412,11 @@ class MensajeModelSerializer(serializers.ModelSerializer):
 class ChatModelSerializer(serializers.ModelSerializer):
     ultimo_mensaje = MensajeModelSerializer(source="get_ultimo_mensaje")
     imagen = serializers.SerializerMethodField("serialize_imagen")
+    titulo = serializers.SerializerMethodField("serialize_titulo")
 
     class Meta:
         model = Chat
-        fields = ["titulo", "imagen", "ultimo_mensaje", "activo", "id"]
+        fields = ["titulo", "imagen", "ultimo_mensaje", "activo", "id", "mensajes_no_vistos"]
         read_only_fields = ["ultimo_mensaje"]
 
     def serialize_imagen(self, chat):
@@ -427,3 +428,6 @@ class ChatModelSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(imagen_url)
         except ValueError:
             return None
+
+    def serialize_titulo(self, chat):
+        return chat.get_titulo()

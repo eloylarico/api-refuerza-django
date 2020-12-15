@@ -420,12 +420,29 @@ class Chat(models.Model):
     class Meta:
         ordering = ["-id"]
 
+    @property
+    def mensajes_no_vistos(self):
+        return Mensaje.objects.filter(chat_user__chat=self, visto=False).count()
+
     def get_mensajes(self):
         return Mensaje.objects.filter(chat_user__chat=self).order_by("-fecha")
 
     def get_ultimo_mensaje(self):
         # Se trae el primer mensaje porque está ordenado por fecha
         return self.get_mensajes().first()
+
+    def get_titulo(self):
+        if self.titulo == "" or self.titulo is None:
+            chats_users = self.chats_users.all()
+            first_user = chats_users.first()
+            users_number = chats_users.count()
+
+            titulo = f"{first_user.user.short_display_name} " + f"{users_number}" if users_number - 1 > 0 else ""
+
+            if first_user.user.tipo_usuario == User.DOCENTE:
+                titulo = 'Prof. ' + titulo
+            return titulo
+        return self.titulo
 
     def get_imagen(self, current_user: User):
         if self.imagen.name:
