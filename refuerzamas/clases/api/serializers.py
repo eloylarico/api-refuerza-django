@@ -384,7 +384,7 @@ class MensajeModelSerializer(serializers.ModelSerializer):
             return UserEstudianteModelSerializer(mensaje.chat_user.user).data
         if mensaje.chat_user.user.tipo_usuario == User.DOCENTE:
             return UserDocenteModelSerializer(mensaje.chat_user.user).data
-        if mensaje.chat_user.user.tipo_usuario == User.ESTUDIANTE:
+        if mensaje.chat_user.user.tipo_usuario == User.TUTOR:
             return UserTutorModelSerializer(mensaje.chat_user.user).data
 
     def validate_chat_id(self, value):
