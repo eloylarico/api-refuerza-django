@@ -371,21 +371,29 @@ class ClaseModelSerializer(serializers.ModelSerializer):
 #             return ""
 #         return ""
 class MensajeModelSerializer(serializers.ModelSerializer):
-    user = serializers.SerializerMethodField("serialize_user")
+    class UserSerializer(serializers.ModelSerializer):
+        short_display_name = serializers.CharField()
+
+        class Meta:
+            model = User
+            fields = ["avatar", "id", "first_name", "last_name", "short_display_name"]
+
+    # user = serializers.SerializerMethodField("serialize_user")
+    user = UserSerializer(source="get_user", read_only=True)
     chat_id = serializers.IntegerField(source="get_chat_id")
 
     class Meta:
         model = Mensaje
         fields = ["texto", "archivo", "chat_id", "user", "id", "fecha", "estado", "chat_user_id"]
-        read_only_fields = ["user", "chat_id"]
+        read_only_fields = ["chat_id"]
 
-    def serialize_user(self, mensaje: Mensaje):
-        if mensaje.chat_user.user.tipo_usuario == User.ESTUDIANTE:
-            return UserEstudianteModelSerializer(mensaje.chat_user.user).data
-        if mensaje.chat_user.user.tipo_usuario == User.DOCENTE:
-            return UserDocenteModelSerializer(mensaje.chat_user.user).data
-        if mensaje.chat_user.user.tipo_usuario == User.TUTOR:
-            return UserTutorModelSerializer(mensaje.chat_user.user).data
+    # def serialize_user(self, mensaje: Mensaje):
+    #     if mensaje.chat_user.user.tipo_usuario == User.ESTUDIANTE:
+    #         return UserEstudianteModelSerializer(mensaje.chat_user.user).data
+    #     if mensaje.chat_user.user.tipo_usuario == User.DOCENTE:
+    #         return UserDocenteModelSerializer(mensaje.chat_user.user).data
+    #     if mensaje.chat_user.user.tipo_usuario == User.TUTOR:
+    #         return UserTutorModelSerializer(mensaje.chat_user.user).data
 
     def validate_chat_id(self, value):
         try:
