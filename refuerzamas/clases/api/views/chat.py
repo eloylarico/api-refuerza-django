@@ -7,7 +7,7 @@ from url_filter.integrations.drf import DjangoFilterBackend
 
 from refuerzamas.clases.api.paginations import MensajesPagination
 from refuerzamas.clases.api.serializers import ChatModelSerializer, MensajeModelSerializer
-from refuerzamas.clases.models import Chat
+from refuerzamas.clases.models import Chat, ChatUser
 
 
 class ChatViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -53,6 +53,19 @@ class MensajeViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     # def create(self, request, *args, **kwargs):
     #     data = request.data
     #     data["user"] = self.request.user.id
+    #     serializer = self.get_serializer(data=data)
+    #     serializer.is_valid(raise_exception=True)
+    #     serializer.save()
+    #     return Response(serializer.data)
+
+    # def create(self, request, *args, **kwargs):
+    #     data = request.data
+    #     user_id = self.request.user.id
+    #     chat_id = data['chat_id']
+    #     chat_user = ChatUser.objects.get(user_id=user_id, chat_id=chat_id)
+    #     data["user"] = user_id
+    #     data["chat_user_id"] = chat_user.id
+    #     del data['chat_id']
     #     serializer = self.get_serializer(data=data)
     #     serializer.is_valid(raise_exception=True)
     #     serializer.save()

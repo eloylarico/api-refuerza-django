@@ -490,6 +490,9 @@ class Mensaje(models.Model):
         default=ENTREGADO
     )
 
+    def get_chat_id(self):
+        return self.chat_user.chat_id
+
     def get_user(self):
         return self.chat_user.user
 

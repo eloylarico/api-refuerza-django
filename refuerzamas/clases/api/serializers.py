@@ -372,12 +372,12 @@ class ClaseModelSerializer(serializers.ModelSerializer):
 #         return ""
 class MensajeModelSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField("serialize_user")
-    chat_id = serializers.IntegerField(write_only=True)
+    chat_id = serializers.IntegerField(source="get_chat_id")
 
     class Meta:
         model = Mensaje
-        fields = ["texto", "archivo", "chat_id", "user", "id", "fecha", "estado"]
-        read_only_fields = ["user"]
+        fields = ["texto", "archivo", "chat_id", "user", "id", "fecha", "estado", "chat_user_id"]
+        read_only_fields = ["user", "chat_id"]
 
     def serialize_user(self, mensaje: Mensaje):
         if mensaje.chat_user.user.tipo_usuario == User.ESTUDIANTE:
@@ -395,7 +395,7 @@ class MensajeModelSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("El id del chat que  has envíado no existe")
 
     def create(self, validated_data):
-        chat_id = validated_data.pop("chat_id")
+        chat_id = validated_data.pop("get_chat_id")
         chat_user, _ = ChatUser.objects.get_or_create(user=self.context["request"].user, chat_id=chat_id)
         return chat_user.mensajes.create(**validated_data)
 
