@@ -453,8 +453,8 @@ class Chat(models.Model):
             return None
 
 
-def __str__(self):
-    return self.titulo or f"Chat {self.id}"
+    def __str__(self):
+        return self.titulo or f"Chat {self.id}"
 
 
 class ChatUser(models.Model):

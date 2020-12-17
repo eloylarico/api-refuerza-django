@@ -1,38 +1,28 @@
-# # Rest
-# from rest_framework import serializers
-#
-# # Model
-# from refuerzamas.clases.models import User, Chat, Mensaje, Docente
-#
-#
-# class AdminUserModelSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = ["id", "display_name", "tipo_usuario", "avatar"]
-#
-#
-# class AdminChatModelSerializer(serializers.ModelSerializer):
-#
-#     user2 = AdminUserModelSerializer(read_only=True)
-#
-#     class Meta:
-#         model = Chat
-#         fields = ["user2"]
-#
-#
-# class AdminMensajeodelSerializer(serializers.ModelSerializer):
-#
-#     user = AdminUserModelSerializer(read_only=True)
-#
-#     class Meta:
-#         model = Mensaje
-#         fields = ["user", "texto", "archivo", "date_formatting", "visto"]
-#
-#
-# class AdminChatMensajeModelSerializer(serializers.ModelSerializer):
-#
-#     mensajes = AdminMensajeodelSerializer(read_only=True, many=True)
-#
-#     class Meta:
-#         model = Chat
-#         fields = ["mensajes"]
+# Rest
+from django.db.models import fields
+from rest_framework import serializers
+
+# Model
+from refuerzamas.clases.models import *
+
+
+class AdminUserModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "display_name", "tipo_usuario", "avatar"]
+
+
+class ChatUserModelSerializer(serializers.ModelSerializer):
+    user = AdminUserModelSerializer(read_only=True)
+    class Meta:
+        model = ChatUser
+        fields = ["user"]
+
+class AdminMensajeodelSerializer(serializers.ModelSerializer):
+
+    chat_user = ChatUserModelSerializer(read_only=True)
+
+    class Meta:
+        model = Mensaje
+        fields = ["chat_user", "texto", "archivo", "date_formatting"]
+

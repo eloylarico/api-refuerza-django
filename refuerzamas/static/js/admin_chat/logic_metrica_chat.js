@@ -19,7 +19,6 @@
     //Template lista de alumnos o tutores
     function listUsuario2Template(data, user1) {
         const sp = "/static/images/no_avatar.jpeg"
-
         return `
         <div class="user" data-user1="${user1}" data-user2="${data.id}">
             <div class="avatar">
@@ -37,7 +36,7 @@
 
         let orientacion = "right"
         let link = ""
-        if (data.user.tipo_usuario == "DOCENTE") {
+        if (data.chat_user.user.tipo_usuario == "DOCENTE") {
             orientacion = "left"
         }
         if (data.archivo) {
@@ -49,9 +48,9 @@
         return `
         <div class="answer ${orientacion}">
             <div class="avatar">
-                <img src="${data.user.avatar ? data.user.avatar : sp}" alt="${data.user.display_name}"/>
+                <img src="${data.chat_user.user.avatar ? data.chat_user.user.avatar : sp}" alt="${data.chat_user.user.display_name}"/>
             </div>
-                <div class="name">${data.user.display_name}</div>
+                <div class="name">${data.chat_user.user.display_name}</div>
             <div class="text">
                 ${data.texto}<br>
                 <strong><u>${link}</u></strong>
@@ -90,7 +89,7 @@
             const user2 = element.dataset.user2
             cuerpoChat.innerHTML = ""
             const listMensajes = await getUrl(`all_chat/${user1}/${user2}/`)
-            listMensajes.data.mensajes.reverse().forEach((element) => {
+            listMensajes.data.reverse().forEach((element) => {
                 const HTMLString = MensajeTemplate(element)
                 cuerpoChat.innerHTML += HTMLString;
             })
@@ -107,7 +106,8 @@
         listUser2.innerHTML = ""
         const listaUsuarios2 = await getUrl(`list_chat/${value}/`)
         listaUsuarios2.data.forEach((element) => {
-            const HTMLString = listUsuario2Template(element.user2, value)
+            
+            const HTMLString = listUsuario2Template(element, value)
             const html = txtToHtml(HTMLString)
             mostrarChat(html)
             listUser2.append(html);
