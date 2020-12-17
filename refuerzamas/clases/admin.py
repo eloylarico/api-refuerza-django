@@ -410,9 +410,11 @@ class ChatAdmin(ModelAdmin):
     inlines = [ChatUserInlineAdmin]
     list_display = ["id", "titulo", "imagen"]
 
+
 @register(Mensaje)
 class MensajeAdmin(ModelAdmin):
     list_display = ["chat_user", "texto"]
+    filter_horizontal = ["users_visto"]
 
 
 # @register(Mensaje)
