@@ -421,10 +421,11 @@ class ChatModelSerializer(serializers.ModelSerializer):
     ultimo_mensaje = MensajeModelSerializer(source="get_ultimo_mensaje")
     imagen = serializers.SerializerMethodField("serialize_imagen")
     titulo = serializers.SerializerMethodField("serialize_titulo")
+    cantidad_users = serializers.IntegerField(source="get_cantidad_usuarios")
 
     class Meta:
         model = Chat
-        fields = ["titulo", "imagen", "ultimo_mensaje", "activo", "id", "mensajes_no_vistos"]
+        fields = ["titulo", "imagen", "ultimo_mensaje", "activo", "id", "mensajes_no_vistos", "cantidad_users"]
         read_only_fields = ["ultimo_mensaje"]
 
     def serialize_imagen(self, chat):

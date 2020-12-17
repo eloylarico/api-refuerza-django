@@ -420,6 +420,9 @@ class Chat(models.Model):
     class Meta:
         ordering = ["-id"]
 
+    def get_cantidad_usuarios(self):
+        return self.chats_users.count()
+
     @property
     def mensajes_no_vistos(self):
         return Mensaje.objects.filter(chat_user__chat=self).count()
