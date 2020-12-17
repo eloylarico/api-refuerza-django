@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.http import Http404, JsonResponse
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
@@ -7,7 +8,7 @@ from url_filter.integrations.drf import DjangoFilterBackend
 
 from refuerzamas.clases.api.paginations import MensajesPagination
 from refuerzamas.clases.api.serializers import ChatModelSerializer, MensajeModelSerializer
-from refuerzamas.clases.models import Chat, ChatUser
+from refuerzamas.clases.models import Chat, ChatUser, Mensaje
 
 
 class ChatViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -18,7 +19,7 @@ class ChatViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     @action(detail=True, methods=["GET"])
     def mensajes(self, request, pk=None):
-        user = self.request.user
+        user = request.user
         chat = get_object_or_404(Chat, pk=pk)
 
         # chat = user.get_chats().get(id=pk)
@@ -31,17 +32,14 @@ class ChatViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         serializer = MensajeModelSerializer(mensajes, many=True, context=self.get_serializer_context())
         return Response(serializer.data)
 
-    # @action(detail=True, methods=["POST"])
-    # def revisado(self, request, pk=None):
-    #     user = self.request.user
-    #     try:
-    #         chat = user.get_chats().get(id=pk)
-    #         chat.mensajes.exclude(user=user).filter(visto=False).update(visto=True)
-    #         chats = user.get_chats()
-    #         serializer = self.get_serializer(chats, many=True)
-    #         return Response(serializer.data)
-    #     except Chat.DoesNotExist:
-    #         raise Http404
+    @action(detail=True, methods=["POST"])
+    def revisado(self, request, pk=None):
+        user = request.user
+        chat: Chat = get_object_or_404(Chat, pk=pk)
+        chat.revisar(user=user)
+        chats = self.get_queryset()
+        serializer = self.get_serializer(chats, many=True)
+        return Response(serializer.data)
 
 
 class MensajeViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):

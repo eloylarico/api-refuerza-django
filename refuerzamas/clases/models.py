@@ -158,16 +158,6 @@ class User(AbstractUser):
 
     def get_chats(self):
         return Chat.objects.filter(chats_users__user=self)
-        # if self.tipo_usuario == User.ESTUDIANTE:
-        #     return Chat.objects.filter(user2=self)
-        #
-        # elif self.tipo_usuario == User.TUTOR:
-        #     tutelados_user_id = self.perfil_tutor.tutelados.values_list("user_id", flat=True)
-        #     chats = Chat.objects.filter(user2_id__in=tutelados_user_id) | Chat.objects.filter(user2=self)
-        #     return chats
-        #
-        # elif self.tipo_usuario == User.DOCENTE:
-        #     return Chat.objects.filter(user1=self)
 
     @property
     def display_name(self):
@@ -420,9 +410,24 @@ class Chat(models.Model):
     class Meta:
         ordering = ["-id"]
 
-    @property
-    def mensajes_no_vistos(self):
-        return Mensaje.objects.filter(chat_user__chat=self).count()
+    def get_mensajes_no_vistos(self, user: User):
+        estado_no_vistos = ~Q(estado=Mensaje.VISTO)
+        de_otros_usuarios = ~Q(chat_user__user=user)
+        no_vistos_por_usuario = ~Q(users_visto__user=user)
+        return Mensaje.objects.filter(
+            estado_no_vistos,
+            de_otros_usuarios,
+            no_vistos_por_usuario,
+        )
+
+    def get_mensajes_vistos(self, user: User):
+        de_otros_usuarios = ~Q(chat_user__user=user)
+        vistos_por_usuario = Q(users_visto__user=user)
+
+        return Mensaje.objects.filter(
+            de_otros_usuarios,
+            vistos_por_usuario,
+        )
 
     def get_mensajes(self):
         return Mensaje.objects.filter(chat_user__chat=self).order_by("-fecha")
@@ -440,7 +445,7 @@ class Chat(models.Model):
             titulo = f"{first_user.user.short_display_name} " + f"{users_number}" if users_number - 1 > 0 else ""
 
             if first_user.user.tipo_usuario == User.DOCENTE:
-                titulo = 'Prof. ' + titulo
+                titulo = "Prof. " + titulo
             return titulo
         return self.titulo
 
@@ -452,14 +457,24 @@ class Chat(models.Model):
         else:
             return None
 
+    def revisar(self, user: User):
+        chat_user, _ = ChatUser.objects.get_or_create(user=user, chat=self)
 
-def __str__(self):
-    return self.titulo or f"Chat {self.id}"
+        mensajes = self.get_mensajes().filter(~Q(users_visto=chat_user), estado=Mensaje.ENTREGADO)
+        for index, mensaje in enumerate(mensajes):
+            mensaje.users_visto.add(chat_user)
+            mensaje.revisar_visto()
+
+    def __str__(self):
+        return self.titulo or f"Chat {self.id}"
 
 
 class ChatUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="chats_users")
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE, related_name="chats_users")
+
+    class Meta:
+        unique_together = [["user", "chat"]]
 
     # def clean(self) -> None:
     #     if self.user.tipo_usuario is None:
@@ -483,12 +498,23 @@ class Mensaje(models.Model):
     archivo = models.FileField(upload_to="clases/mensajes/archivos", blank=True, null=True)
     fecha = models.DateTimeField("Fecha y hora del mensaje", auto_now_add=True)
     # visto = models.BooleanField(default=False)
-    estado = models.CharField(
-        "Estado de mensaje",
-        max_length=15,
-        choices=ESTADO_MENSAJES_CHOICES,
-        default=ENTREGADO
+    estado = models.CharField("Estado de mensaje", max_length=15, choices=ESTADO_MENSAJES_CHOICES, default=ENTREGADO)
+    users_visto = models.ManyToManyField(
+        ChatUser,
+        through="MensajeVisto",
+        through_fields=(
+            "mensaje",
+            "chat_user",
+        ),
     )
+
+    def revisar_visto(self):
+        cantidad_usuarios = ChatUser.objects.filter(chat_id=self.chat_user.chat_id).count()
+        # En caso el usuario que envía el mensaje sea el único del chat, el mensaje pasará al estado de bisto
+        cantidad_usuarios = 2
+        if self.users_visto.count() == cantidad_usuarios:
+            self.estado = self.VISTO
+            self.save()
 
     def get_chat_id(self):
         return self.chat_user.chat_id
@@ -510,3 +536,12 @@ class Mensaje(models.Model):
     def clean(self) -> None:
         if self.texto is None and self.archivo is None:
             raise ValidationError("Debes enviar al menos un texto o un archivo para que sea un mensaje válido.")
+
+
+class MensajeVisto(models.Model):
+    mensaje = models.ForeignKey(Mensaje, on_delete=models.CASCADE)
+    chat_user = models.ForeignKey(ChatUser, on_delete=models.CASCADE)
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [["chat_user", "mensaje"]]

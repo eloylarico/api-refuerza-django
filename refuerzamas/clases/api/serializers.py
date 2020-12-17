@@ -404,8 +404,14 @@ class MensajeModelSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         chat_id = validated_data.pop("get_chat_id")
-        chat_user, _ = ChatUser.objects.get_or_create(user=self.context["request"].user, chat_id=chat_id)
-        return chat_user.mensajes.create(**validated_data)
+        chat = Chat.objects.get(id=chat_id)
+        user = self.context["request"].user
+        chat_user, _ = ChatUser.objects.get_or_create(user=user, chat_id=chat_id)
+        mensaje = chat_user.mensajes.create(**validated_data)
+        mensaje.users_visto.add(chat_user)
+        mensaje.revisar_visto()
+
+        return mensaje
 
 
 # class UserModelSerializer(serializers.ModelSerializer):
@@ -421,10 +427,12 @@ class ChatModelSerializer(serializers.ModelSerializer):
     ultimo_mensaje = MensajeModelSerializer(source="get_ultimo_mensaje")
     imagen = serializers.SerializerMethodField("serialize_imagen")
     titulo = serializers.SerializerMethodField("serialize_titulo")
+    mensajes_no_vistos = serializers.SerializerMethodField()
+    mensajes_vistos = serializers.SerializerMethodField()
 
     class Meta:
         model = Chat
-        fields = ["titulo", "imagen", "ultimo_mensaje", "activo", "id", "mensajes_no_vistos"]
+        fields = ["titulo", "imagen", "ultimo_mensaje", "activo", "id", "mensajes_no_vistos", "mensajes_vistos"]
         read_only_fields = ["ultimo_mensaje"]
 
     def serialize_imagen(self, chat):
@@ -436,6 +444,16 @@ class ChatModelSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(imagen_url)
         except ValueError:
             return None
+
+    def get_mensajes_no_vistos(self, chat):
+        request = self.context["request"]
+        user = request.user
+        return chat.get_mensajes_no_vistos(user).count()
+
+    def get_mensajes_vistos(self, chat):
+        request = self.context["request"]
+        user = request.user
+        return chat.get_mensajes_vistos(user).count()
 
     def serialize_titulo(self, chat):
         return chat.get_titulo()
