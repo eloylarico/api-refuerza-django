@@ -422,6 +422,7 @@ class Chat(models.Model):
             estado_no_vistos,
             de_otros_usuarios,
             no_vistos_por_usuario,
+            chat_user__chat=self
         )
 
     def get_mensajes_vistos(self, user: User):
@@ -431,6 +432,7 @@ class Chat(models.Model):
         return Mensaje.objects.filter(
             de_otros_usuarios,
             vistos_por_usuario,
+            chat_user__chat=self
         )
 
     def get_mensajes(self):
