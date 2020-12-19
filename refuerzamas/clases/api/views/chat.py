@@ -9,6 +9,7 @@ from url_filter.integrations.drf import DjangoFilterBackend
 from refuerzamas.clases.api.paginations import MensajesPagination
 from refuerzamas.clases.api.serializers import ChatModelSerializer, MensajeModelSerializer
 from refuerzamas.clases.models import Chat, ChatUser, Mensaje
+from refuerzamas.utils.pusher import PusherChannelsClient
 
 
 class ChatViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -36,7 +37,9 @@ class ChatViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     def revisado(self, request, pk=None):
         user = request.user
         chat: Chat = get_object_or_404(Chat, pk=pk)
-        chat.revisar(user=user)
+        mensajes_vistos = chat.revisar(user=user)
+        pusher_client = PusherChannelsClient()
+        pusher_client.propagar_visto(mensajes_vistos, chat.id)
         chats = self.get_queryset()
         serializer = self.get_serializer(chats, many=True)
         return Response(serializer.data)

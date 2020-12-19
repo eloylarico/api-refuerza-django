@@ -55,6 +55,11 @@ class PusherChannelsClient:
         reserva = ClaseModelSerializer(reserva)
         self.pusher_client.trigger(canal, "clase_reservada", reserva.data)
 
+    def propagar_visto(self, mensajes_vistos, chat_id):
+        canal = f"chat-{chat_id}"
+        mensajes_vistos = MensajeModelSerializer(mensajes_vistos, many=True)
+        self.pusher_client.trigger(canal, "propagar-visto", mensajes_vistos.data)
+
 
 class PusherBeamsClient:
     def __init__(self):

@@ -465,11 +465,13 @@ class Chat(models.Model):
 
     def revisar(self, user: User):
         chat_user, _ = ChatUser.objects.get_or_create(user=user, chat=self)
-
+        mensajes_vistos = []
         mensajes = self.get_mensajes().filter(~Q(users_visto=chat_user), estado=Mensaje.ENTREGADO)
         for index, mensaje in enumerate(mensajes):
             mensaje.users_visto.add(chat_user)
-            mensaje.revisar_visto()
+            if mensaje.revisar_visto():
+                mensajes_vistos.append(mensaje)
+        return mensajes_vistos
 
     def __str__(self):
         return self.titulo or f"Chat {self.id}"
@@ -520,6 +522,8 @@ class Mensaje(models.Model):
         if self.users_visto.count() == cantidad_usuarios:
             self.estado = self.VISTO
             self.save()
+            return True
+        return False
 
     def get_chat_id(self):
         return self.chat_user.chat_id
