@@ -9,7 +9,13 @@ from refuerzamas.clases.models import *
 class AdminUserModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "display_name", "tipo_usuario", "avatar"]
+        fields = ["id", "display_name", "tipo_usuario", "number_type",  "avatar"]
+
+
+class ChatModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Chat
+        fields = ["id", "titulo", "imagen", "activo", "get_participantes"]
 
 
 class ChatUserModelSerializer(serializers.ModelSerializer):
