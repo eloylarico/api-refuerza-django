@@ -409,7 +409,6 @@ class MensajeModelSerializer(serializers.ModelSerializer):
         chat_user, _ = ChatUser.objects.get_or_create(user=user, chat_id=chat_id)
         mensaje = chat_user.mensajes.create(**validated_data)
         mensaje.users_visto.add(chat_user)
-        mensaje.revisar_visto()
 
         return mensaje
 
