@@ -64,7 +64,7 @@ body {
   position: absolute;
 }
 .chat-users .user .name {
-  font-size: 14px;
+  font-size: 18px;
   font-weight: bold;
   line-height: 20px;
   white-space: nowrap;
@@ -72,11 +72,10 @@ body {
   text-overflow: ellipsis;
 }
 .chat-users .user .mood {
-  font: 200 14px/20px "Raleway", sans-serif;
+  font: 200 12px "Raleway", sans-serif;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-transform: capitalize;
 }
 
 /*****************CHAT BODY *******************/
@@ -91,7 +90,7 @@ body {
 }
 .chat-body .answer {
   position: relative;
-  max-width: 600px;
+  max-width: 98%;
   overflow: hidden;
   clear: both;
 }
@@ -128,7 +127,7 @@ body {
 }
 .chat-body .answer .text {
   padding: 12px;
-  font-size: 16px;
+  font-size: 0.9em;
   line-height: 26px;
   position: relative;
 }
@@ -244,4 +243,9 @@ body {
 .chat input {
   -webkit-appearance: none;
   border-radius: 0;
+}
+
+/* adicional */
+.element {
+  cursor: pointer;
 }

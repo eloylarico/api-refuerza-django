@@ -160,6 +160,12 @@ class User(AbstractUser):
         return Chat.objects.filter(chats_users__user=self)
 
     @property
+    def number_type(self):
+        if self.tipo_usuario == User.DOCENTE:
+            return 1
+        return 0
+
+    @property
     def display_name(self):
         # if self.get_full_name() != "":
         return self.get_full_name() or self.username or self.email
@@ -472,6 +478,16 @@ class Chat(models.Model):
             if mensaje.revisar_visto():
                 mensajes_vistos.append(mensaje)
         return mensajes_vistos
+
+    @property
+    def get_participantes(self):
+        user = User.objects.filter(chats_users__chat=self)
+        names = []
+        for u in user[:2]:
+            names.append(u.display_name)
+        if user.count() >= 3:
+            names.append("y más ...")
+        return names
 
     def __str__(self):
         return self.titulo or f"Chat {self.id}"

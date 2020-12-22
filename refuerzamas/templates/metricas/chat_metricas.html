@@ -3,11 +3,13 @@
 
 
 {% block 'extrahead_metrica' %}
-
 {% endblock 'extrahead_metrica' %}
 
 
-{% block title %}Administrador Chat{% endblock %}
+{% block title %}
+Administrador Chat
+{% endblock %}
+
 
 {% block content_title %}
 <h4 class="center-align">Administración de los Chat</h4>
@@ -15,45 +17,74 @@
 
 
 {% block content %}
+<div id="app">
+    <div class="container">
+        <div class="row row-broken">
+            <div class="col-sm-3 col-xs-12">
+                <div class="col-inside-lg decor-default chat" style="overflow: hidden; outline: none;" tabindex="5000">
+                    <div class="chat-users">
+                        <h6>Busca un usuario:</h6>
 
-<div class="container">
-    <div class="row row-broken">
-        <div class="col-sm-3 col-xs-12">
-            <div class="col-inside-lg decor-default chat" style="overflow: hidden; outline: none;" tabindex="5000">
-                <div class="chat-users">
-                    <h6>Docente</h6>
-                    <form class="needs-validation" novalidate>
+                        <ul class="list-group"> 
+                            <li class="list-group-item">
+                                <input type="text" placeholder="Buscar" class="form-control" v-model="display_name">                        
+                            </li>          
+                            
+                            <li v-for="i in buscarUsuario" v-show="display_name != '' " class="list-group-item element" v-bind:data-id="i.id">
+                                <a href="#" @click="getListChats(i.id)">[[ i.display_name ]]</a>
+                            </li>
+                        </ul>
 
-                        <select id="list-docentes" class="mdb-select validate md-form" searchable="Search here..">
-                            <option value="" disabled selected>Seleccione un docente</option>
-                        </select>
 
-                    </form>
-                    <br>
+                        
+                        <br>
+                        <div id="list-chats">
+                            <div class="user" v-for="c in list_chats" @click="getConversaciones(c.id)">
+                                <div class="avatar">
+                                    <img v-if="c.imagen == null" src={% static 'images/chat.png' %} v-bind:alt="c.titulo">
+                                    <img v-else v-bind:src="c.imagen"  v-bind:alt="c.titulo"  v-bind:data-id="c.id">                                 
+                                </div>
+                                <div class="name">[[ c.titulo ]]</div>
+                                <div class="mood" v-for="n in c.get_participantes">[[ n ]]</div>
+                             </div>             
+                        </div>
 
-                    <div id="list-user2"></div>
-
+                    </div>
                 </div>
+
             </div>
-
-        </div>
-        <div class="col-sm-9 col-xs-12 chat"
-            style="overflow: hidden;outline: none;--darkreader-inline-outline: initial;" tabindex="5001"
-            data-darkreader-inline-outline="">
-            <div class="col-inside-lg decor-default">
-                <h6>Chat</h6>
-
-                <div class="chat-body" id="cuerpo-chat">
+            <div class="col-sm-9 col-xs-12 chat"
+                style="overflow: hidden;outline: none;--darkreader-inline-outline: initial;" tabindex="5001"
+                data-darkreader-inline-outline="">
+                <div class="col-inside-lg decor-default">
+                    <h6>Chat</h6>
+                    
+                    <div class="chat-body" id="cuerpo-chat">
+                        <div class="answer" v-for="conv in conversaciones" v-bind:class="[conv.chat_user.user.number_type == 1 ? 'left' : 'right']">
+                            <div class="avatar">
+                                <img v-if="conv.chat_user.user.avatar == null" src={% static 'images/no_avatar.jpeg' %} v-bind:alt="conv.chat_user.user.display_name"/>
+                                <img v-else v-bind:src="conv.chat_user.user.avatar" v-bind:alt="conv.display_name"/>
+                            </div>
+                                <div class="name">[[ conv.chat_user.user.display_name ]]</div>
+                            <div class="text">
+                                [[ conv.texto ]]<br>
+                                <strong v-if="conv.archivo != null"><u>
+                                    <a v-bind:href="conv.archivo" download style="color: #3ea6ff;">[[ String(conv.archivo).replace("/media/clases/mensajes/archivos/", "") ]]</a>
+                                </u></strong>
+                            </div>
+                            
+                                <div class="time">[[ conv.date_formatting ]]</div>
+                        </div>
+                        <div class="answer-add"></div>
+                    </div>
 
                 </div>
-
             </div>
         </div>
     </div>
 </div>
 
-
-
-<script src="{% static 'js/admin_chat/logic_metrica_chat.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+<script src="{% static 'js/admin_chat/admin_chat.js' %}"></script>
 <script src="{% static 'js/admin_chat/metrica_chat.js' %}"></script>
 {% endblock %}
