@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core import mail
+from django.db.models.aggregates import Count
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.template.loader import render_to_string
@@ -68,9 +69,40 @@ def crear_chat(sender, instance: Reserva, created, **kwargs):
     if instance.estado == Reserva.PENDIENTE:
         return
 
-    Chat.objects.get_or_create(user1=instance.docente.user, user2=instance.estudiante.user)
-    if instance.estudiante.tutor is not None:
-        Chat.objects.get_or_create(user1=instance.docente.user, user2=instance.estudiante.tutor.user)
+    # Chat.objects.get_or_create(user1=instance.docente.user, user2=instance.estudiante.user)
+    ids_chats_individuales = (
+        Chat.objects.annotate(numero_usuarios=Count("chats_users"))
+        .filter(titulo__isnull=True, numero_usuarios=2)
+        .values_list("id", flat=True)
+    )
+
+    # exists_user_chat = Chat.objects.filter(
+    #     id__in=ids_chats_individuales, chats_users__user_id__in=[instance.docente.user_id, instance.estudiante.user_id]
+    # )
+    chats_con_docente = Chat.objects.filter(
+        id__in=ids_chats_individuales, chats_users__user_id=instance.docente.user_id
+    )
+    exists_user_docente_chat = chats_con_docente.filter(chats_users__user_id=instance.estudiante.user_id).exists()
+
+    if not exists_user_docente_chat:
+        chat = Chat.objects.create()
+        chat.chats_users.create(user=instance.docente.user)
+        chat.chats_users.create(user=instance.estudiante.user)
+
+    if instance.estudiante.tutor:
+        exists_tutor_docente_chat = chats_con_docente.filter(
+            chats_users__user_id=instance.estudiante.tutor.user_id
+        ).exists()
+
+        # exists_tutor_chat = Chat.objects.filter(
+        #     id__in=ids_chats_individuales,
+        #     chats_users__user_id__in=[instance.docente.user_id, instance.estudiante.user_id],
+        # ).exists()
+
+        if not exists_tutor_docente_chat:
+            chat = Chat.objects.create()
+            chat.chats_users.create(user=instance.docente.user)
+            chat.chats_users.create(user=instance.estudiante.tutor.user)
 
 
 @receiver(post_save, sender=Reserva)
