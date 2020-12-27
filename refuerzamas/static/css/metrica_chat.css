@@ -7,9 +7,13 @@ body {
 }
 .col-inside-lg {
   padding: 20px;
+  max-height: 80vh;
+  border: 1px solid #eadddd;
+  overflow: auto;
 }
 .chat {
-  height: calc(100vh - 180px);
+  max-height: 80vh;
+  overflow: auto;
   max-width: 100%;
 }
 .decor-default {

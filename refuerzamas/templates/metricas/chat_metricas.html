@@ -21,7 +21,7 @@ Administrador Chat
     <div class="container">
         <div class="row row-broken">
             <div class="col-sm-3 col-xs-12">
-                <div class="col-inside-lg decor-default chat" style="overflow: hidden; outline: none;" tabindex="5000">
+                <div class="col-inside-lg decor-default chat" tabindex="5000">
                     <div class="chat-users">
                         <h6>Busca un usuario:</h6>
 
@@ -39,7 +39,7 @@ Administrador Chat
                         
                         <br>
                         <div id="list-chats">
-                            <div class="user" v-for="c in list_chats" @click="getConversaciones(c.id)">
+                            <div class="user" v-for="c in list_chats" :key="c.id" @click="getConversaciones(c.id)">
                                 <div class="avatar">
                                     <img v-if="c.imagen == null" src={% static 'images/chat.png' %} v-bind:alt="c.titulo">
                                     <img v-else v-bind:src="c.imagen"  v-bind:alt="c.titulo"  v-bind:data-id="c.id">                                 
@@ -57,10 +57,10 @@ Administrador Chat
                 style="overflow: hidden;outline: none;--darkreader-inline-outline: initial;" tabindex="5001"
                 data-darkreader-inline-outline="">
                 <div class="col-inside-lg decor-default">
-                    <h6>Chat</h6>
+                    <h4>Chat</h4>
                     
                     <div class="chat-body" id="cuerpo-chat">
-                        <div class="answer" v-for="conv in conversaciones" v-bind:class="[conv.chat_user.user.number_type == 1 ? 'left' : 'right']">
+                        <div class="answer" v-for="conv in conversaciones" :key="conv.chat_user.user.id" v-bind:class="[conv.chat_user.user.number_type == 1 ? 'left' : 'right']">
                             <div class="avatar">
                                 <img v-if="conv.chat_user.user.avatar == null" src={% static 'images/no_avatar.jpeg' %} v-bind:alt="conv.chat_user.user.display_name"/>
                                 <img v-else v-bind:src="conv.chat_user.user.avatar" v-bind:alt="conv.display_name"/>
@@ -85,6 +85,6 @@ Administrador Chat
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="{% static 'js/admin_chat/admin_chat.js' %}"></script>
-<script src="{% static 'js/admin_chat/metrica_chat.js' %}"></script>
 {% endblock %}
