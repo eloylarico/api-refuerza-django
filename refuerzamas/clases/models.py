@@ -448,13 +448,17 @@ class Chat(models.Model):
         # Se trae el primer mensaje porque está ordenado por fecha
         return self.get_mensajes().first()
 
-    def get_titulo(self):
+    def get_titulo(self, current_user: User):
         if self.titulo == "" or self.titulo is None:
-            chats_users = self.chats_users.all()
-            first_user = chats_users.first()
+            chats_users = self.chats_users
             users_number = chats_users.count()
+            if users_number > 1:
+                chats_users = chats_users.exclude(user=current_user)
+            first_user = chats_users.first()
 
-            titulo = f"{first_user.user.short_display_name} " + f"{users_number}" if users_number - 1 > 0 else ""
+            titulo = f"{first_user.user.short_display_name}"
+            if users_number > 2:
+                titulo+= f" +{users_number - 2}"
 
             if first_user.user.tipo_usuario == User.DOCENTE:
                 titulo = "Prof. " + titulo
@@ -466,6 +470,8 @@ class Chat(models.Model):
             return self.imagen
         elif self.chats_users.all().count() >= 2:
             return self.chats_users.filter(~Q(user_id=current_user.id)).first().user.avatar
+        elif self.chats_users.all().count() >= 1:
+            return self.chats_users.filter(user_id=current_user.id).first().user.avatar
         else:
             return None
 

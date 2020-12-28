@@ -450,4 +450,6 @@ class ChatModelSerializer(serializers.ModelSerializer):
         return chat.get_mensajes_no_vistos(user).count()
 
     def serialize_titulo(self, chat):
-        return chat.get_titulo()
+        request = self.context["request"]
+        user = request.user
+        return chat.get_titulo(current_user=user)
