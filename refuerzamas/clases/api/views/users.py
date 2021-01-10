@@ -1,19 +1,24 @@
 # Rest
+from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.generics import RetrieveUpdateAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import mixins, viewsets
+from rest_framework import mixins, viewsets, status
 from django.contrib.auth import get_user_model
 
 # Serialzier
+from rest_framework.response import Response
+
 from refuerzamas.clases.api.serializers import (
     UserEstudianteModelSerializer,
     UserDocenteModelSerializer,
     UserTutorModelSerializer,
+    HoraModelSerializer,
+    DiaModelSerializer,
 )
 
 # Model
-from refuerzamas.clases.models import Estudiante, User
+from refuerzamas.clases.models import Estudiante, User, Clase, Docente, Dia
 
 
 class UserDetailView(RetrieveUpdateAPIView):
@@ -32,7 +37,9 @@ class UserDetailView(RetrieveUpdateAPIView):
             return UserTutorModelSerializer
 
 
-class DocenteViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class DocenteViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
 
     serializer_class = UserDocenteModelSerializer
 
@@ -67,7 +74,9 @@ class DocenteViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
                 queryset = User.objects.filter(tipo_usuario=User.DOCENTE)
             else:
                 ids_user_docentes = (
-                    User.objects.filter(perfil_docente__cursos__grado__nivel_id__in=niveles_tutelados)
+                    User.objects.filter(
+                        perfil_docente__cursos__grado__nivel_id__in=niveles_tutelados
+                    )
                     .distinct()
                     .values_list("id", flat=True)
                 )
@@ -80,9 +89,20 @@ class DocenteViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
             queryset = queryset.order_by("?")[:5]
         return queryset
 
+    @action(detail=False, methods=["GET"])
+    def mis_docentes(self, request):
+        user = self.request.user
+        if user.tipo_usuario == User.ESTUDIANTE or user.tipo_usuario == User.TUTOR:
+            mis_docentes = user.get_mis_docentes()
+            serializer = UserDocenteModelSerializer(
+                mis_docentes, many=True, context={"request": request}
+            )
+            return Response(serializer.data)
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
 
-class EstudianteViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+
+class EstudianteViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
     serializer_class = UserEstudianteModelSerializer
-    queryset = User.objects.filter(tipo_usuario=User.ESTUDIANTE).order_by('?')[:5]
-
-
+    queryset = User.objects.filter(tipo_usuario=User.ESTUDIANTE).order_by("?")[:5]

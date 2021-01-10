@@ -29,6 +29,9 @@ from refuerzamas.clases.models import (
     User,
     Chat,
     Mensaje,
+    Dia,
+    Hora,
+    CodigoDescuento,
 )
 
 
@@ -162,7 +165,7 @@ class PerfilDocenteAdmin(ModelAdmin):
         "user__observaciones",
         "user__direccion",
     ]
-    filter_horizontal = ["cursos"]
+    filter_horizontal = ["cursos", "horario"]
 
     def has_add_permission(self, request, obj=None) -> bool:
         return False
@@ -315,54 +318,43 @@ class ReservaAdmin(ModelAdmin):
         "docente__user__last_name",
         "curso__materia__nombre",
     ]
-    # formfield_overrides = {
-    #     models.TimeField: {"widget": admin_widgets.AdminSplitDateTime(time_format="%H:%M")},
-    # }
-    # formfield_overrides = {
-    #     models.DateTimeField: {"widget": admin_widgets.AdminSplitDateTime(attrs={"time_format": "%H:%M"})},
-    # }
-    # formfield_overrides = {
-    #     models.DateTimeField: {"widget": widgets.SplitDateTimeWidget(time_format="%H:%M")},
-    # }
 
 
-@register(Clase)
-class ClasesAdmin(ModelAdmin):
-    list_display = [
-        "estudiante",
-        "docente",
-        "curso",
-        "estado",
-        "hora_inicio",
-        "hora_fin",
-        "precio_estudiante",
-        "precio_docente",
-    ]
-    autocomplete_fields = [
-        "estudiante",
-        "docente",
-        "curso",
-        "medio_pago",
-    ]
-    list_filter = [
-        "estado",
-        "curso",
-        "curso__grado",
-        "docente",
-    ]
-    search_fields = [
-        "estudiante__user__first_name",
-        "estudiante__user__last_name",
-        "docente__user__first_name",
-        "docente__user__last_name",
-        "curso__materia__nombre",
-    ]
-
-    def has_add_permission(self, request, obj=None) -> bool:
-        return False
-
-    def get_queryset(self, request: HttpRequest) -> QuerySet:
-        return Clase.clases
+# @register(Clase)
+# class ClasesAdmin(ModelAdmin):
+#     list_display = [
+#         "estudiante",
+#         "docente",
+#         "curso",
+#         "estado",
+#         "hora_inicio",
+#         "hora_fin",
+#         "precio_estudiante",
+#         "precio_docente",
+#     ]
+#     autocomplete_fields = [
+#         "estudiante",
+#         "docente",
+#         "curso",
+#         "medio_pago",
+#     ]
+#     list_filter = [
+#         "estado",
+#         "curso",
+#         "curso__grado",
+#         "docente",
+#     ]
+#     search_fields = [
+#         "estudiante__user__first_name",
+#         "estudiante__user__last_name",
+#         "docente__user__first_name",
+#         "docente__user__last_name",
+#         "curso__materia__nombre",
+#     ]
+#
+#
+#     def get_queryset(self, request: HttpRequest) -> QuerySet:
+#         return Clase.clases
 
 
 class CursosInlineAdmin(admin.TabularInline):
@@ -415,6 +407,21 @@ class ChatAdmin(ModelAdmin):
 class MensajeAdmin(ModelAdmin):
     list_display = ["chat_user", "texto"]
     filter_horizontal = ["users_visto"]
+
+
+class HoraInline(admin.TabularInline):
+    model = Hora
+
+
+@register(Dia)
+class DiaAdmin(admin.ModelAdmin):
+    inlines = [HoraInline]
+    list_display = ["nombre"]
+
+
+@register(CodigoDescuento)
+class CodigoDescuentoAdmin(admin.ModelAdmin):
+    list_display = ["codigo", "porcentaje_descuento"]
 
 
 # @register(Mensaje)

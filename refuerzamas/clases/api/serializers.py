@@ -20,6 +20,11 @@ from refuerzamas.clases.models import (
     Grado,
     Nivel,
     Mensaje,
+    Reserva,
+    Hora,
+    Dia,
+    TipoPago,
+    MedioPago,
 )
 from refuerzamas.ciudades.models import Pais, Region, Ciudad
 
@@ -51,7 +56,7 @@ class CursoModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Curso
-        fields = ("id", "materia", "grado")
+        fields = ("id", "materia", "grado", "precio")
 
 
 class PaisModelSerializer(serializers.ModelSerializer):
@@ -97,13 +102,38 @@ class GradoInstruccionModelSerializer(serializers.ModelSerializer):
         fields = ("nombre",)
 
 
+class HoraModelSerializer(serializers.ModelSerializer):
+    dia = serializers.SerializerMethodField("get_nombre_dia")
+
+    class Meta:
+        model = Hora
+        fields = ["id", "hora_inicio", "hora_fin", "dia"]
+
+    def get_nombre_dia(self, hora):
+        return hora.dia.nombre
+
+
+class DiaModelSerializer(serializers.ModelSerializer):
+    horas_disponibles = HoraModelSerializer(many=True)
+
+    class Meta:
+        model = Dia
+        fields = "__all__"
+
+
 # Serializers User
 class DocenteModelSerializer(serializers.ModelSerializer):
     # user =
     grado_instruccion = GradoInstruccionModelSerializer(required=False, read_only=True)
-    grado_instruccion_id = serializers.IntegerField(required=False, write_only=True, allow_null=True)
+    grado_instruccion_id = serializers.IntegerField(
+        required=False, write_only=True, allow_null=True
+    )
     cursos = CursoModelSerializer(required=False, read_only=True, many=True)
-    materias = MateriaModelSerializer(source="get_materias", required=False, read_only=True, many=True)
+    materias = MateriaModelSerializer(
+        source="get_materias", required=False, read_only=True, many=True
+    )
+    horario = HoraModelSerializer(many=True)
+    dias_habiles = serializers.SerializerMethodField()
 
     class Meta:
         model = Docente
@@ -122,7 +152,12 @@ class DocenteModelSerializer(serializers.ModelSerializer):
             "cursos",
             "materias",
             "estrellas",
+            "horario",
+            "dias_habiles",
         )
+
+    def get_dias_habiles(self, docente):
+        return docente.get_dias_habiles()
 
 
 class TutorModelSerializer(serializers.ModelSerializer):
@@ -196,7 +231,15 @@ class EstudianteModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Estudiante
-        fields = ("institucion", "grado", "tutor", "institucion_id", "breve_cv", "grado_id", "estrellas")
+        fields = (
+            "institucion",
+            "grado",
+            "tutor",
+            "institucion_id",
+            "breve_cv",
+            "grado_id",
+            "estrellas",
+        )
         read_only_fields = ("tutor",)
 
 
@@ -247,15 +290,21 @@ class UserEstudianteModelSerializer(serializers.ModelSerializer):
         instance.last_name = validated_data.get("last_name", instance.last_name)
         instance.nickname = validated_data.get("nickname", instance.nickname)
         instance.avatar = validated_data.get("avatar", instance.avatar)
-        instance.fecha_nacimiento = validated_data.get("fecha_nacimiento", instance.fecha_nacimiento)
+        instance.fecha_nacimiento = validated_data.get(
+            "fecha_nacimiento", instance.fecha_nacimiento
+        )
         instance.celular = validated_data.get("celular", instance.celular)
         instance.direccion = validated_data.get("direccion", instance.direccion)
-        instance.observaciones = validated_data.get("observaciones", instance.observaciones)
+        instance.observaciones = validated_data.get(
+            "observaciones", instance.observaciones
+        )
         instance.genero_id = validated_data.get("genero_id", instance.genero_id)
         instance.save()
 
         if data:
-            estudiante.institucion_id = data.get("institucion_id", estudiante.institucion_id)
+            estudiante.institucion_id = data.get(
+                "institucion_id", estudiante.institucion_id
+            )
             estudiante.grado_id = data.get("grado_id", estudiante.grado_id)
             estudiante.breve_cv = data.get("breve_cv", estudiante.breve_cv)
             estudiante.save()
@@ -309,16 +358,24 @@ class UserDocenteModelSerializer(serializers.ModelSerializer):
         instance.username = validated_data.get("username", instance.username)
         instance.nickname = validated_data.get("nickname", instance.nickname)
         instance.avatar = validated_data.get("avatar", instance.avatar)
-        instance.fecha_nacimiento = validated_data.get("fecha_nacimiento", instance.fecha_nacimiento)
+        instance.fecha_nacimiento = validated_data.get(
+            "fecha_nacimiento", instance.fecha_nacimiento
+        )
         instance.celular = validated_data.get("celular", instance.celular)
         instance.direccion = validated_data.get("direccion", instance.direccion)
-        instance.observaciones = validated_data.get("observaciones", instance.observaciones)
+        instance.observaciones = validated_data.get(
+            "observaciones", instance.observaciones
+        )
         instance.genero_id = validated_data.get("genero_id", instance.genero_id)
         instance.save()
 
         if data:
-            docente.grado_instruccion_id = data.get("grado_instruccion_id", docente.grado_instruccion_id)
-            docente.herramientas_videollamada = data.get("herramientas_videollamada", docente.herramientas_videollamada)
+            docente.grado_instruccion_id = data.get(
+                "grado_instruccion_id", docente.grado_instruccion_id
+            )
+            docente.herramientas_videollamada = data.get(
+                "herramientas_videollamada", docente.herramientas_videollamada
+            )
             docente.entrevista = data.get("entrevista", docente.entrevista)
             docente.confiabilidad = data.get("confiabilidad", docente.confiabilidad)
             docente.señal = data.get("señal", docente.señal)
@@ -384,7 +441,16 @@ class MensajeModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Mensaje
-        fields = ["texto", "archivo", "chat_id", "user", "id", "fecha", "estado", "chat_user_id"]
+        fields = [
+            "texto",
+            "archivo",
+            "chat_id",
+            "user",
+            "id",
+            "fecha",
+            "estado",
+            "chat_user_id",
+        ]
         read_only_fields = ["chat_id"]
 
     # def serialize_user(self, mensaje: Mensaje):
@@ -400,7 +466,9 @@ class MensajeModelSerializer(serializers.ModelSerializer):
             Chat.objects.get(id=value)
             return value
         except Chat.DoesNotExist:
-            raise serializers.ValidationError("El id del chat que  has envíado no existe")
+            raise serializers.ValidationError(
+                "El id del chat que  has envíado no existe"
+            )
 
     def create(self, validated_data):
         chat_id = validated_data.pop("get_chat_id")
@@ -431,7 +499,15 @@ class ChatModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Chat
-        fields = ["titulo", "imagen", "ultimo_mensaje", "activo", "id", "mensajes_no_vistos", "cantidad_users"]
+        fields = [
+            "titulo",
+            "imagen",
+            "ultimo_mensaje",
+            "activo",
+            "id",
+            "mensajes_no_vistos",
+            "cantidad_users",
+        ]
         read_only_fields = ["ultimo_mensaje"]
 
     def serialize_imagen(self, chat):
@@ -453,3 +529,23 @@ class ChatModelSerializer(serializers.ModelSerializer):
         request = self.context["request"]
         user = request.user
         return chat.get_titulo(current_user=user)
+
+
+class ReservaModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reserva
+        fields = "__all__"
+
+
+class MedioPagoModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MedioPago
+        fields = "__all__"
+
+
+class TipoPagoModelSerializer(serializers.ModelSerializer):
+    medios_pago = MedioPagoModelSerializer(many=True)
+
+    class Meta:
+        model = TipoPago
+        fields = "__all__"
