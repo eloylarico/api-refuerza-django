@@ -414,6 +414,7 @@ class Docente(models.Model):
         return Materia.objects.filter(id__in=materias_ids)
 
     def set_horario(self, horario):
+        self.horario.clear()
         for hora_id in horario:
             hora = Hora.objects.get(pk=hora_id)
             self.horario.add(hora)
