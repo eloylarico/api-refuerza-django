@@ -32,6 +32,7 @@ from refuerzamas.clases.models import (
     Dia,
     Hora,
     CodigoDescuento,
+    TipoPago,
 )
 
 
@@ -422,6 +423,11 @@ class DiaAdmin(admin.ModelAdmin):
 @register(CodigoDescuento)
 class CodigoDescuentoAdmin(admin.ModelAdmin):
     list_display = ["codigo", "porcentaje_descuento"]
+
+
+@register(TipoPago)
+class TipoPagoAdmin(admin.ModelAdmin):
+    list_display = ["id", "nombre"]
 
 
 # @register(Mensaje)

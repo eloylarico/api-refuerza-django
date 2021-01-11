@@ -446,7 +446,26 @@ class HorarioLibreDocente(models.Model):
 
 
 class TipoPago(models.Model):
+    MODAL_TRANSFERENCIA_INTERBANCARIA = "MODAL_TRANSFERENCIA_INTERBANCARIA"
+    MODAL_DEPOSITO_BANCARIO = "MODAL_DEPOSITO_BANCARIO"
+    MODAL_TRANSFERENCIA_MOVIL = "MODAL_TRANSFERENCIA_MOVIL"
+    TIPO_DE_MODAL = [
+        (MODAL_TRANSFERENCIA_INTERBANCARIA, "MODAL TRANSFERENCIA INTERBANCARIA"),
+        (MODAL_DEPOSITO_BANCARIO, "MODAL DEPOSITO BANCARIO"),
+        (MODAL_TRANSFERENCIA_MOVIL, "MODAL TRANSFERENCIA MÓVIL"),
+    ]
     nombre = models.CharField(max_length=255, unique=True)
+    descripcion = models.CharField(max_length=255, null=True, blank=True)
+    icono = models.ImageField(
+        "Ícono de tipo de pago",
+        upload_to="clases/tipos_de_pago/",
+        null=True,
+        blank=True,
+    )
+    tipo_modal = models.CharField(
+        max_length=250, choices=TIPO_DE_MODAL, null=True, blank=True
+    )
+    prioridad = models.IntegerField(default=0)
 
     class Meta:
         verbose_name = "Tipo de pago"
@@ -469,6 +488,13 @@ class MedioPago(models.Model):
     nombre_destinatario = models.CharField(max_length=255, blank=True, null=True)
     dni_destinatario = models.CharField(max_length=255, blank=True, null=True)
     numero = models.CharField(max_length=255, blank=True, null=True)
+    icono = models.ImageField(
+        "Ícono de medio de pago",
+        help_text="Este ícono solo es visible para los medios de pago de tipo 'Transferencia por celular'",
+        null=True,
+        blank=True,
+        upload_to="clases/medios_de_pago/",
+    )
 
     class Meta:
         verbose_name = "Medio de pago"
@@ -567,8 +593,9 @@ class Reserva(models.Model):
         self.porcentaje_descuento = codigo.porcentaje_descuento
         self.save()
 
-    def adjuntar_comprobante_pago(self, foto_comprobante):
+    def adjuntar_comprobante_pago(self, foto_comprobante, medio_pago_id):
         self.foto_pago = foto_comprobante
+        self.medio_pago_id = medio_pago_id
         self.estado = self.PAGADA
         self.save()
 

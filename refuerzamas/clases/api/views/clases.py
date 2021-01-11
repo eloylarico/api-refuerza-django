@@ -111,11 +111,18 @@ class OrdenCompraViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
+    @action(detail=False, methods=["GET"])
+    def ver_orden(self, request):
+        codigo_compra = request.query_params.get("codigo_compra", False)
+        reservas = Reserva.objects.filter(orden_compra=codigo_compra)
+        serializer = ReservaModelSerializer(reservas, many=True)
+        return Response(serializer.data)
+
     @action(detail=False, methods=["POST"])
     def aplicar_codigo_descuento(self, request):
         codigo = request.data.get("codigo_descuento")
-        numero_orden_compra = request.data.get("numero_orden_compra")
-        reservas = Reserva.objects.filter(orden_compra=numero_orden_compra)
+        codigo_compra = request.data.get("codigo_compra")
+        reservas = Reserva.objects.filter(orden_compra=codigo_compra)
         compra = []
         codigo_descuento = get_object_or_404(CodigoDescuento, codigo=codigo)
         for reserva in reservas:
@@ -126,9 +133,10 @@ class OrdenCompraViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
     @action(detail=False, methods=["POST"])
     def adjuntar_comprobante_pago(self, request):
-        numero_orden_compra = request.data.get("numero_orden_compra")
+        codigo_compra = request.data.get("codigo_compra")
         foto_comprobante = request.data.get("foto_comprobante")
-        reservas = Reserva.objects.filter(orden_compra=numero_orden_compra)
+        medio_pago_id = request.data.get("medio_pago_id")
+        reservas = Reserva.objects.filter(orden_compra=codigo_compra)
         for reserva in reservas:
-            reserva.adjuntar_comprobante_pago(foto_comprobante)
+            reserva.adjuntar_comprobante_pago(foto_comprobante, medio_pago_id)
         return Response(None, status=status.HTTP_200_OK)

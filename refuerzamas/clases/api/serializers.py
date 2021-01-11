@@ -138,6 +138,7 @@ class DocenteModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Docente
         fields = (
+            "id",
             "grado_instruccion",
             "grado_instruccion_id",
             "herramientas_videollamada",
@@ -531,7 +532,21 @@ class ChatModelSerializer(serializers.ModelSerializer):
         return chat.get_titulo(current_user=user)
 
 
+class DocenteReservaModelSerializer(serializers.ModelSerializer):
+    user = UserDocenteModelSerializer()
+
+    class Meta:
+        model = Docente
+        fields = [
+            "id",
+            "user",
+        ]
+
+
 class ReservaModelSerializer(serializers.ModelSerializer):
+    curso = CursoModelSerializer()
+    docente = DocenteReservaModelSerializer()
+
     class Meta:
         model = Reserva
         fields = "__all__"
