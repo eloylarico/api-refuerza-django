@@ -100,6 +100,16 @@ class DocenteViewSet(
             return Response(serializer.data)
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
+    @action(detail=False, methods=["POST"])
+    def guardar_horario_disponible(self, request):
+        user = self.request.user
+        if user.tipo_usuario == User.DOCENTE:
+            horario = request.data.get("horario")
+            user.perfil_docente.set_horario(horario)
+            serializer = UserDocenteModelSerializer(user, context={"request": request})
+            return Response(serializer.data)
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
+
 
 class EstudianteViewSet(
     mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet

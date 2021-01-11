@@ -413,6 +413,11 @@ class Docente(models.Model):
         materias_ids = self.cursos.values_list("materia_id", flat=True)
         return Materia.objects.filter(id__in=materias_ids)
 
+    def set_horario(self, horario):
+        for hora_id in horario:
+            hora = Hora.objects.get(pk=hora_id)
+            self.horario.add(hora)
+
     def __str__(self):
         return str(self.user)
 
