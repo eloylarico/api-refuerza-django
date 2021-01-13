@@ -165,7 +165,7 @@ class TutorModelSerializer(serializers.ModelSerializer):
     class TuteladoUserSerializer(serializers.ModelSerializer):
         class Meta:
             model = User
-            fields = ["display_name", "short_display_name", "avatar"]
+            fields = ["id", "display_name", "short_display_name", "avatar"]
 
     tutelados = TuteladoUserSerializer(source="get_tutelados__user", many=True)
 

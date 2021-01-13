@@ -210,8 +210,15 @@ class User(AbstractUser):
 
         return reservas
 
-    def crear_orden(self, curso_id, docente_id, fechas):
-        if self.tipo_usuario == self.ESTUDIANTE:
+    def crear_orden(self, curso_id, docente_id, fechas, estudiante_id):
+        if self.tipo_usuario == self.ESTUDIANTE or self.tipo_usuario == self.TUTOR:
+            if self.tipo_usuario == self.ESTUDIANTE:
+                estudiante = self.perfil_estudiante
+            elif self.tipo_usuario == self.TUTOR:
+                tutelado_user = User.objects.get(pk=estudiante_id)
+                estudiante = tutelado_user.perfil_estudiante
+
+
             curso = Curso.objects.get(pk=curso_id)
             docente = Docente.objects.get(pk=docente_id)
             numero_orden_compra = None
@@ -227,7 +234,7 @@ class User(AbstractUser):
                 )
                 if not numero_orden_compra:
                     reserva = Reserva.objects.create(
-                        estudiante=self.perfil_estudiante,
+                        estudiante=estudiante,
                         curso=curso,
                         docente=docente,
                         hora_inicio=fecha_inicio,
@@ -244,7 +251,7 @@ class User(AbstractUser):
                     reserva.save()
                 else:
                     reserva = Reserva.objects.create(
-                        estudiante=self.perfil_estudiante,
+                        estudiante=estudiante,
                         curso=curso,
                         docente=docente,
                         orden_compra=numero_orden_compra,

@@ -105,7 +105,8 @@ class OrdenCompraViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
             curso_id = request.data.get("curso_id")
             docente_id = request.data.get("docente_id")
             fechas = request.data.get("fechas")
-            compra = user.crear_orden(curso_id, docente_id, fechas)
+            estudiante_id = request.data.get("estudiante_id", False) #El usuario tutor envía este parametro
+            compra = user.crear_orden(curso_id, docente_id, fechas, estudiante_id)
             serializer = ReservaModelSerializer(compra, many=True)
             return Response(serializer.data)
 
