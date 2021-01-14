@@ -422,7 +422,7 @@ class DiaAdmin(admin.ModelAdmin):
 
 @register(CodigoDescuento)
 class CodigoDescuentoAdmin(admin.ModelAdmin):
-    list_display = ["codigo", "porcentaje_descuento"]
+    list_display = ["codigo", "cantidad", "tipo"]
 
 
 @register(TipoPago)

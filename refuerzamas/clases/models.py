@@ -1,3 +1,5 @@
+import decimal
+
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
@@ -218,7 +220,6 @@ class User(AbstractUser):
                 tutelado_user = User.objects.get(pk=estudiante_id)
                 estudiante = tutelado_user.perfil_estudiante
 
-
             curso = Curso.objects.get(pk=curso_id)
             docente = Docente.objects.get(pk=docente_id)
             numero_orden_compra = None
@@ -244,7 +245,7 @@ class User(AbstractUser):
                         precio_docente=precio_curso,
                         monto=precio_curso,
                         monto_total=precio_curso,
-                        porcentaje_descuento=0,
+                        descuento=0,
                     )
                     numero_orden_compra = str(reserva.id).zfill(5)
                     reserva.orden_compra = numero_orden_compra
@@ -262,7 +263,7 @@ class User(AbstractUser):
                         precio_docente=precio_curso,
                         monto=precio_curso,
                         monto_total=precio_curso,
-                        porcentaje_descuento=0,
+                        descuento=0,
                     )
                 compra.append(reserva)
         return compra
@@ -576,8 +577,8 @@ class Reserva(models.Model):
     monto = models.DecimalField(
         "Monto sin descuento", max_digits=11, decimal_places=2, null=True, blank=True
     )
-    porcentaje_descuento = models.IntegerField(
-        "Porcentaje de descuento(%)", null=True, blank=True
+    descuento = models.DecimalField(
+        max_digits=11, decimal_places=2, null=True, blank=True
     )
     monto_total = models.DecimalField(
         "Monto con descuento", max_digits=11, decimal_places=2, null=True, blank=True
@@ -602,8 +603,12 @@ class Reserva(models.Model):
         return self.estudiante.user
 
     def aplicar_codigo_descuento(self, codigo):
-        self.monto_total -= self.monto_total * codigo.porcentaje_descuento / 100
-        self.porcentaje_descuento = codigo.porcentaje_descuento
+        if codigo.tipo == CodigoDescuento.PORCENTAJE:
+            descuento = self.monto * codigo.cantidad / 100
+        else:
+            descuento = codigo.cantidad
+        self.monto_total = self.monto - decimal.Decimal(descuento)
+        self.descuento = descuento
         self.save()
 
     def adjuntar_comprobante_pago(self, foto_comprobante, medio_pago_id):
@@ -845,12 +850,19 @@ class MensajeVisto(models.Model):
 
 
 class CodigoDescuento(models.Model):
+    PORCENTAJE = "PORCENTAJE"
+    MONTO = "MONTO"
+    TIPO_DESCUENTO = [
+        (PORCENTAJE, "Porcentaje"),
+        (MONTO, "Monto"),
+    ]
     codigo = models.CharField(max_length=30)
-    porcentaje_descuento = models.IntegerField(default=0)
+    cantidad = models.IntegerField(default=0)
+    tipo = models.CharField(max_length=20, default=PORCENTAJE, choices=TIPO_DESCUENTO)
 
     class Meta:
         verbose_name = "Código de descuento"
         verbose_name_plural = "Códigos de descuento"
 
     def __str__(self):
-        return f"{self.codigo} ({self.porcentaje_descuento}%)"
+        return f"{self.codigo}"
