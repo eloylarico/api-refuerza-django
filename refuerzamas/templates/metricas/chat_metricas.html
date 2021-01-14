@@ -41,8 +41,8 @@ Administrador Chat
                         <div id="list-chats">
                             <div class="user" v-for="c in list_chats" :key="c.id" @click="getConversaciones(c.id)">
                                 <div class="avatar">
-                                    <img v-if="c.imagen == null" src={% static 'images/chat.png' %} v-bind:alt="c.titulo">
-                                    <img v-else v-bind:src="c.imagen"  v-bind:alt="c.titulo"  v-bind:data-id="c.id">                                 
+                                    <img v-if="c.imagen == null" src={% static 'images/chat.png' %} v-bind:alt="c.titulo" width="40px">>
+                                    <img v-else v-bind:src="c.imagen"  v-bind:alt="c.titulo"  v-bind:data-id="c.id" width="40px">                                 
                                 </div>
                                 <div class="name">[[ c.titulo ]]</div>
                                 <div class="mood" v-for="n in c.get_participantes">[[ n ]]</div>
@@ -59,11 +59,12 @@ Administrador Chat
                 <div class="col-inside-lg decor-default">
                     <h4>Chat</h4>
                     
-                    <div class="chat-body" id="cuerpo-chat">
+                    <div class="chat-body" id="cuerpo-chat" v-if="conversaciones != null">
+                        <p v-if="conversaciones.length == 0">No hay conversaciones en este chat.</p>
                         <div class="answer" v-for="conv in conversaciones" :key="conv.chat_user.user.id" v-bind:class="[conv.chat_user.user.number_type == 1 ? 'left' : 'right']">
                             <div class="avatar">
-                                <img v-if="conv.chat_user.user.avatar == null" src={% static 'images/no_avatar.jpeg' %} v-bind:alt="conv.chat_user.user.display_name"/>
-                                <img v-else v-bind:src="conv.chat_user.user.avatar" v-bind:alt="conv.display_name"/>
+                                <img v-if="conv.chat_user.user.avatar == null" src={% static 'images/no_avatar.jpeg' %} v-bind:alt="conv.chat_user.user.display_name" width="40px"/>
+                                <img v-else v-bind:src="conv.chat_user.user.avatar" v-bind:alt="conv.display_name" width="40px"/>
                             </div>
                                 <div class="name">[[ conv.chat_user.user.display_name ]]</div>
                             <div class="text">

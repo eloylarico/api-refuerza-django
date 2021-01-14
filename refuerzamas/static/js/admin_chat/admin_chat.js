@@ -7,7 +7,7 @@ new Vue({
         list_user: [],   
         display_name: '', 
         list_chats:[],
-        conversaciones:[],
+        conversaciones:null,
     },
 
     mounted(){
