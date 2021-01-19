@@ -27,9 +27,7 @@ class Nivel(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField("Descripción", blank=True, null=True)
     orden = models.PositiveIntegerField("Órden", blank=True, null=True)
-    foto = models.ImageField(
-        "Ícono del nivel", upload_to="clases/niveles/iconos", null=True, blank=True
-    )
+    foto = models.ImageField("Ícono del nivel", upload_to="clases/niveles/iconos", null=True, blank=True)
 
     class Meta:
         verbose_name_plural = "Niveles"
@@ -95,9 +93,7 @@ class GradoInstruccion(models.Model):
 
 class Materia(models.Model):
     nombre = models.CharField(max_length=100)
-    foto = models.ImageField(
-        "Ícono del curso", upload_to="clases/cursos/fotos", null=True
-    )
+    foto = models.ImageField("Ícono del curso", upload_to="clases/cursos/fotos", null=True)
 
     def __str__(self):
         return self.nombre
@@ -124,9 +120,7 @@ class Dia(models.Model):
 
 
 class Hora(models.Model):
-    dia = models.ForeignKey(
-        Dia, on_delete=models.CASCADE, related_name="horas_disponibles"
-    )
+    dia = models.ForeignKey(Dia, on_delete=models.CASCADE, related_name="horas_disponibles")
     hora_inicio = models.IntegerField(default=0)
     hora_fin = models.IntegerField(default=0)
 
@@ -161,13 +155,9 @@ class User(AbstractUser):
         null=True,
         blank=True,
     )
-    avatar = models.ImageField(
-        "Foto de perfil", upload_to="users/avatar", null=True, blank=True
-    )
+    avatar = models.ImageField("Foto de perfil", upload_to="users/avatar", null=True, blank=True)
     fecha_nacimiento = models.DateField("Fecha de nacimiento", null=True, blank=True)
-    genero = models.ForeignKey(
-        Genero, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Género"
-    )
+    genero = models.ForeignKey(Genero, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Género")
     celular = models.CharField(max_length=9, null=True, blank=True)
     email = models.EmailField("Correo electrónico", unique=True)
     ciudad = models.ForeignKey(
@@ -203,12 +193,8 @@ class User(AbstractUser):
         if self.tipo_usuario == User.ESTUDIANTE:
             reservas = self.perfil_estudiante.mis_reservas.all()
         elif self.tipo_usuario == User.TUTOR:
-            users_estudiante_ids = self.perfil_tutor.tutelados.all().values_list(
-                "user_id", flat=True
-            )
-            reservas = Clase.objects.filter(
-                estudiante__user_id__in=users_estudiante_ids
-            )
+            users_estudiante_ids = self.perfil_tutor.tutelados.all().values_list("user_id", flat=True)
+            reservas = Clase.objects.filter(estudiante__user_id__in=users_estudiante_ids)
 
         return reservas
 
@@ -227,12 +213,8 @@ class User(AbstractUser):
             precio_curso = curso.precio
             for fecha in fechas:
                 hora = Hora.objects.get(pk=fecha["hora_id"])
-                fecha_inicio = datetime.strptime(fecha["fecha"], "%d/%m/%Y").replace(
-                    hour=hora.hora_inicio
-                )
-                fecha_fin = datetime.strptime(fecha["fecha"], "%d/%m/%Y").replace(
-                    hour=hora.hora_fin
-                )
+                fecha_inicio = datetime.strptime(fecha["fecha"], "%d/%m/%Y").replace(hour=hora.hora_inicio)
+                fecha_fin = datetime.strptime(fecha["fecha"], "%d/%m/%Y").replace(hour=hora.hora_fin)
                 if not numero_orden_compra:
                     reserva = Reserva.objects.create(
                         estudiante=estudiante,
@@ -334,17 +316,11 @@ class Estudiante(models.Model):
         on_delete=models.CASCADE,
         related_name="perfil_estudiante",
     )
-    institucion = models.ForeignKey(
-        Institucion, on_delete=models.PROTECT, null=True, blank=True
-    )
+    institucion = models.ForeignKey(Institucion, on_delete=models.PROTECT, null=True, blank=True)
     grado = models.ForeignKey(Grado, blank=True, null=True, on_delete=models.PROTECT)
-    tutor = models.ForeignKey(
-        Tutor, blank=True, null=True, on_delete=models.PROTECT, related_name="tutelados"
-    )
+    tutor = models.ForeignKey(Tutor, blank=True, null=True, on_delete=models.PROTECT, related_name="tutelados")
     breve_cv = models.TextField(null=True, blank=True)
-    estrellas = models.PositiveSmallIntegerField(
-        help_text="Calificación del 1 a 5 estrellas del docente.", default=5
-    )
+    estrellas = models.PositiveSmallIntegerField(help_text="Calificación del 1 a 5 estrellas del docente.", default=5)
 
     class Meta:
         verbose_name = "Perfil del estudiante"
@@ -371,9 +347,7 @@ class Docente(models.Model):
     ]
 
     # Fields
-    orden_compra = models.CharField(
-        "N° orden de compra", max_length=30, null=True, blank=True
-    )
+    orden_compra = models.CharField("N° orden de compra", max_length=30, null=True, blank=True)
     user = models.OneToOneField(
         User,
         verbose_name="Docente",
@@ -387,23 +361,13 @@ class Docente(models.Model):
         null=True,
         blank=True,
     )
-    herramientas_videollamada = models.TextField(
-        "Herramientas de videollamada", null=True, blank=True
-    )
+    herramientas_videollamada = models.TextField("Herramientas de videollamada", null=True, blank=True)
     entrevista = models.BooleanField(blank=True, null=True)
-    confiabilidad = models.CharField(
-        max_length=100, choices=ESCALA_EVALUACION_CHOICES, blank=True, null=True
-    )
-    señal = models.CharField(
-        max_length=100, choices=ESCALA_EVALUACION_CHOICES, blank=True, null=True
-    )
+    confiabilidad = models.CharField(max_length=100, choices=ESCALA_EVALUACION_CHOICES, blank=True, null=True)
+    señal = models.CharField(max_length=100, choices=ESCALA_EVALUACION_CHOICES, blank=True, null=True)
     breve_cv = models.TextField(null=True, blank=True)
-    curriculum = models.CharField(
-        max_length=100, choices=ESCALA_EVALUACION_CHOICES, blank=True, null=True
-    )
-    estrellas = models.PositiveSmallIntegerField(
-        help_text="Calificación del 1 a 5 estrellas del docente.", default=5
-    )
+    curriculum = models.CharField(max_length=100, choices=ESCALA_EVALUACION_CHOICES, blank=True, null=True)
+    estrellas = models.PositiveSmallIntegerField(help_text="Calificación del 1 a 5 estrellas del docente.", default=5)
     docencia = models.BooleanField(blank=True, null=True)
     titulo = models.BooleanField(blank=True, null=True)
     filosofia = models.TextField(null=True, blank=True)
@@ -412,9 +376,7 @@ class Docente(models.Model):
 
     def get_dias_habiles(self):
         dias_ids = list(set(self.horario.all().values_list("dia_id", flat=True)))
-        dias_array = list(
-            Dia.objects.filter(id__in=dias_ids).values_list("nombre", flat=True)
-        )
+        dias_array = list(Dia.objects.filter(id__in=dias_ids).values_list("nombre", flat=True))
         return dias_array
 
     def get_materias(self):
@@ -447,9 +409,7 @@ class HorarioLibreDocente(models.Model):
 
     def clean(self) -> None:
         if self.hora_inicio > self.hora_fin:
-            raise ValidationError(
-                "La hora de inicio no puede ser mayor a la hora de fin"
-            )
+            raise ValidationError("La hora de inicio no puede ser mayor a la hora de fin")
 
     def __str__(self):
         return f"{self.docente} [{self.hora_inicio} - {self.hora_fin}]"
@@ -476,9 +436,7 @@ class TipoPago(models.Model):
         null=True,
         blank=True,
     )
-    tipo_modal = models.CharField(
-        max_length=250, choices=TIPO_DE_MODAL, null=True, blank=True
-    )
+    tipo_modal = models.CharField(max_length=250, choices=TIPO_DE_MODAL, null=True, blank=True)
     prioridad = models.IntegerField(default=0)
 
     class Meta:
@@ -539,10 +497,16 @@ class Reserva(models.Model):
         (CANCELADA, "Cancelada"),
         (REPORTADA, "Reportada"),
     ]
+    EVALUADA = "Evaluada"
+    COMPROBADA = "Comprobada"
+    OBSERVADA = "Observada"
+
+    ESTADO_FOTO_PAGO = [
+        (EVALUADA, "Evaluada"),
+        (COMPROBADA, "Comprobada"),
+    ]
     # Campos
-    orden_compra = models.CharField(
-        "N° Orden de compra", max_length=30, null=True, blank=True
-    )
+    orden_compra = models.CharField("N° Orden de compra", max_length=30, null=True, blank=True)
     estudiante = models.ForeignKey(
         Estudiante,
         on_delete=models.PROTECT,
@@ -550,9 +514,7 @@ class Reserva(models.Model):
         related_name="mis_reservas",
     )
     """ Se le coloca clases como related name, ya que si un profesor tiene reservas es porque esa reverva paso a ser clases """
-    docente = models.ForeignKey(
-        Docente, on_delete=models.PROTECT, null=True, blank=True, related_name="clases"
-    )
+    docente = models.ForeignKey(Docente, on_delete=models.PROTECT, null=True, blank=True, related_name="clases")
     precio_estudiante = models.FloatField("Precio al Estudiante", default=0)
     precio_docente = models.FloatField("Precio al profesor", default=0)
     medio_pago = models.ForeignKey(
@@ -565,23 +527,20 @@ class Reserva(models.Model):
     hora_inicio = models.DateTimeField()
     hora_fin = models.DateTimeField()
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name="reservas")
-    estado = models.CharField(
-        max_length=100, choices=ESTADO_CLASE_CHOICES, default=PENDIENTE
-    )
+    estado = models.CharField(max_length=100, choices=ESTADO_CLASE_CHOICES, default=PENDIENTE)
     motivo_reporte = models.TextField(blank=True, null=True)
     observaciones = models.TextField(blank=True, null=True)
     enlace_videollamada = models.URLField(max_length=250)
-    foto_pago = models.ImageField(
-        "Foto de pago", null=True, blank=True, upload_to="clases/pagos/"
+    foto_pago = models.ImageField("Foto de pago", null=True, blank=True, upload_to="clases/pagos/")
+    monto = models.DecimalField("Monto sin descuento", max_digits=11, decimal_places=2, null=True, blank=True)
+    descuento = models.DecimalField(max_digits=11, decimal_places=2, null=True, blank=True)
+    monto_total = models.DecimalField("Monto con descuento", max_digits=11, decimal_places=2, null=True, blank=True)
+    estado_foto_pago = models.CharField(max_length=100, choices=ESTADO_FOTO_PAGO, default=EVALUADA)
+    texto_pago = models.TextField(
+        blank=True, null=True, help_text="Texto dentro de la foto que sube el usuario al crear la reserva"
     )
-    monto = models.DecimalField(
-        "Monto sin descuento", max_digits=11, decimal_places=2, null=True, blank=True
-    )
-    descuento = models.DecimalField(
-        max_digits=11, decimal_places=2, null=True, blank=True
-    )
-    monto_total = models.DecimalField(
-        "Monto con descuento", max_digits=11, decimal_places=2, null=True, blank=True
+    observaciones_texto_pago = models.TextField(
+        blank=True, null=True, help_text="Observaciones que se hacen desde la comprobación con OCR"
     )
 
     # estado = models.ForeignKey(Estado, on_delete=models.PROTECT, help_text="Estado de la reserva")
@@ -617,6 +576,12 @@ class Reserva(models.Model):
         self.estado = self.PAGADA
         self.save()
 
+    def adjuntar_texto_pago(self, texto_pago: str, observaciones: str):
+        self.texto_pago = texto_pago
+        self.estado_foto_pago = self.EVALUADA
+        self.observaciones_texto_pago = observaciones
+        self.save()
+
     def clean(self) -> None:
         # Comprobrando horas de inicio y fin
         if self.hora_inicio is None:
@@ -626,19 +591,13 @@ class Reserva(models.Model):
             raise ValidationError("Debes colocoar una hora de fin válida")
 
         if self.hora_inicio > self.hora_fin:
-            raise ValidationError(
-                "La hora de inicio no puede ser mayor a la hora de fin"
-            )
+            raise ValidationError("La hora de inicio no puede ser mayor a la hora de fin")
 
         # Comprobrando estado, solo el estado pendiente puede estar sin profesor
         if self.estado == self.PENDIENTE and self.docente is not None:
-            raise ValidationError(
-                f"Una reserva {self.PENDIENTE} no puede tener un docente asignado."
-            )
+            raise ValidationError(f"Una reserva {self.PENDIENTE} no puede tener un docente asignado.")
         if self.estado != self.PENDIENTE and self.docente is None:
-            raise ValidationError(
-                "Para que la reserva pase a este estado necesita de un docente"
-            )
+            raise ValidationError("Para que la reserva pase a este estado necesita de un docente")
 
     def __str__(self):
         return f"Reserva de {self.estudiante} | Curso: + {self.curso} | Estado: {self.estado}"
@@ -667,9 +626,7 @@ class Chat(models.Model):
     """
 
     titulo = models.CharField("Título", null=True, blank=True, max_length=50)
-    imagen = models.ImageField(
-        "Imagen", null=True, blank=True, upload_to="clases/chats/imagen"
-    )
+    imagen = models.ImageField("Imagen", null=True, blank=True, upload_to="clases/chats/imagen")
     activo = models.BooleanField(default=True)
 
     class Meta:
@@ -693,9 +650,7 @@ class Chat(models.Model):
         de_otros_usuarios = ~Q(chat_user__user=user)
         vistos_por_usuario = Q(users_visto__user=user)
 
-        return Mensaje.objects.filter(
-            de_otros_usuarios, vistos_por_usuario, chat_user__chat=self
-        )
+        return Mensaje.objects.filter(de_otros_usuarios, vistos_por_usuario, chat_user__chat=self)
 
     def get_mensajes(self):
         return Mensaje.objects.filter(chat_user__chat=self).order_by("-fecha")
@@ -725,9 +680,7 @@ class Chat(models.Model):
         if self.imagen.name:
             return self.imagen
         elif self.chats_users.all().count() >= 2:
-            return (
-                self.chats_users.filter(~Q(user_id=current_user.id)).first().user.avatar
-            )
+            return self.chats_users.filter(~Q(user_id=current_user.id)).first().user.avatar
         elif self.chats_users.all().count() >= 1:
             return self.chats_users.filter(user_id=current_user.id).first().user.avatar
         else:
@@ -736,9 +689,7 @@ class Chat(models.Model):
     def revisar(self, user: User):
         chat_user, _ = ChatUser.objects.get_or_create(user=user, chat=self)
         mensajes_vistos = []
-        mensajes = self.get_mensajes().filter(
-            ~Q(users_visto=chat_user), estado=Mensaje.ENTREGADO
-        )
+        mensajes = self.get_mensajes().filter(~Q(users_visto=chat_user), estado=Mensaje.ENTREGADO)
         for index, mensaje in enumerate(mensajes):
             mensaje.users_visto.add(chat_user)
             if mensaje.revisar_visto():
@@ -783,13 +734,9 @@ class Mensaje(models.Model):
         (ENTREGADO, "Entregado"),
     ]
 
-    chat_user = models.ForeignKey(
-        ChatUser, on_delete=models.CASCADE, related_name="mensajes"
-    )
+    chat_user = models.ForeignKey(ChatUser, on_delete=models.CASCADE, related_name="mensajes")
     texto = models.TextField(blank=True, null=True)
-    archivo = models.FileField(
-        upload_to="clases/mensajes/archivos", blank=True, null=True
-    )
+    archivo = models.FileField(upload_to="clases/mensajes/archivos", blank=True, null=True)
     fecha = models.DateTimeField("Fecha y hora del mensaje", auto_now_add=True)
     # visto = models.BooleanField(default=False)
     estado = models.CharField(
@@ -835,9 +782,7 @@ class Mensaje(models.Model):
 
     def clean(self) -> None:
         if self.texto is None and self.archivo is None:
-            raise ValidationError(
-                "Debes enviar al menos un texto o un archivo para que sea un mensaje válido."
-            )
+            raise ValidationError("Debes enviar al menos un texto o un archivo para que sea un mensaje válido.")
 
 
 class MensajeVisto(models.Model):

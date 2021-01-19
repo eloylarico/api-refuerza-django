@@ -125,13 +125,9 @@ class DiaModelSerializer(serializers.ModelSerializer):
 class DocenteModelSerializer(serializers.ModelSerializer):
     # user =
     grado_instruccion = GradoInstruccionModelSerializer(required=False, read_only=True)
-    grado_instruccion_id = serializers.IntegerField(
-        required=False, write_only=True, allow_null=True
-    )
+    grado_instruccion_id = serializers.IntegerField(required=False, write_only=True, allow_null=True)
     cursos = CursoModelSerializer(required=False, read_only=True, many=True)
-    materias = MateriaModelSerializer(
-        source="get_materias", required=False, read_only=True, many=True
-    )
+    materias = MateriaModelSerializer(source="get_materias", required=False, read_only=True, many=True)
     horario = HoraModelSerializer(many=True)
     dias_habiles = serializers.SerializerMethodField()
 
@@ -291,21 +287,15 @@ class UserEstudianteModelSerializer(serializers.ModelSerializer):
         instance.last_name = validated_data.get("last_name", instance.last_name)
         instance.nickname = validated_data.get("nickname", instance.nickname)
         instance.avatar = validated_data.get("avatar", instance.avatar)
-        instance.fecha_nacimiento = validated_data.get(
-            "fecha_nacimiento", instance.fecha_nacimiento
-        )
+        instance.fecha_nacimiento = validated_data.get("fecha_nacimiento", instance.fecha_nacimiento)
         instance.celular = validated_data.get("celular", instance.celular)
         instance.direccion = validated_data.get("direccion", instance.direccion)
-        instance.observaciones = validated_data.get(
-            "observaciones", instance.observaciones
-        )
+        instance.observaciones = validated_data.get("observaciones", instance.observaciones)
         instance.genero_id = validated_data.get("genero_id", instance.genero_id)
         instance.save()
 
         if data:
-            estudiante.institucion_id = data.get(
-                "institucion_id", estudiante.institucion_id
-            )
+            estudiante.institucion_id = data.get("institucion_id", estudiante.institucion_id)
             estudiante.grado_id = data.get("grado_id", estudiante.grado_id)
             estudiante.breve_cv = data.get("breve_cv", estudiante.breve_cv)
             estudiante.save()
@@ -359,24 +349,16 @@ class UserDocenteModelSerializer(serializers.ModelSerializer):
         instance.username = validated_data.get("username", instance.username)
         instance.nickname = validated_data.get("nickname", instance.nickname)
         instance.avatar = validated_data.get("avatar", instance.avatar)
-        instance.fecha_nacimiento = validated_data.get(
-            "fecha_nacimiento", instance.fecha_nacimiento
-        )
+        instance.fecha_nacimiento = validated_data.get("fecha_nacimiento", instance.fecha_nacimiento)
         instance.celular = validated_data.get("celular", instance.celular)
         instance.direccion = validated_data.get("direccion", instance.direccion)
-        instance.observaciones = validated_data.get(
-            "observaciones", instance.observaciones
-        )
+        instance.observaciones = validated_data.get("observaciones", instance.observaciones)
         instance.genero_id = validated_data.get("genero_id", instance.genero_id)
         instance.save()
 
         if data:
-            docente.grado_instruccion_id = data.get(
-                "grado_instruccion_id", docente.grado_instruccion_id
-            )
-            docente.herramientas_videollamada = data.get(
-                "herramientas_videollamada", docente.herramientas_videollamada
-            )
+            docente.grado_instruccion_id = data.get("grado_instruccion_id", docente.grado_instruccion_id)
+            docente.herramientas_videollamada = data.get("herramientas_videollamada", docente.herramientas_videollamada)
             docente.entrevista = data.get("entrevista", docente.entrevista)
             docente.confiabilidad = data.get("confiabilidad", docente.confiabilidad)
             docente.señal = data.get("señal", docente.señal)
@@ -467,9 +449,7 @@ class MensajeModelSerializer(serializers.ModelSerializer):
             Chat.objects.get(id=value)
             return value
         except Chat.DoesNotExist:
-            raise serializers.ValidationError(
-                "El id del chat que  has envíado no existe"
-            )
+            raise serializers.ValidationError("El id del chat que  has envíado no existe")
 
     def create(self, validated_data):
         chat_id = validated_data.pop("get_chat_id")
@@ -564,3 +544,17 @@ class TipoPagoModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = TipoPago
         fields = "__all__"
+
+
+class TextoPagoSerializer(serializers.Serializer):
+    texto_pago = serializers.CharField()
+    observaciones = serializers.CharField()
+    nombre_foto = serializers.CharField()
+
+    def validate_nombre_foto(self, value):
+        reservas_asociadas = Reserva.objects.filter(foto_pago__icontains=value)
+        if reservas_asociadas.count() == 0:
+            raise serializers.ValidationError("Esta nombre no  tiene ninguna foto asociada")
+        else:
+            self.context["reservas_asociadas"] = reservas_asociadas
+            return value

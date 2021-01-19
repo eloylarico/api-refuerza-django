@@ -121,7 +121,8 @@ def enviar_señal_docentes(sender, instance: Reserva, created, **kwargs):
 
 @receiver(post_save, sender=Reserva)
 def enviar_notificaciones_docentes(sender, instance: Reserva, created, **kwargs):
-    if instance.estado == Reserva.PENDIENTE:
+    if instance.estado == Reserva.PENDIENTE and not settings.DEBUG:
+
         pusher_beams_client = PusherBeamsClient()
         title = f"Clase disponible de {instance.curso.materia.nombre}"
         body = f"Hay una nueva clase disponible de {instance.curso.grado.nombre} de {instance.curso.grado.nivel.nombre}, el {instance.hora_inicio.strftime('%d/%m/%Y')} a las {instance.hora_inicio.strftime('%H:%M')} "

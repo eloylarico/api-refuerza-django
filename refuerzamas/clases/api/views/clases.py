@@ -13,6 +13,7 @@ from refuerzamas.clases.api.serializers import (
     ClaseModelSerializer,
     ReservaModelSerializer,
     DiaModelSerializer,
+    TextoPagoSerializer,
     TipoPagoModelSerializer,
 )
 
@@ -27,21 +28,15 @@ from refuerzamas.clases.models import (
 )
 
 
-class ClasesUserViewSet(
-    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
-):
+class ClasesUserViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = ClaseModelSerializer
 
     def get_queryset(self):
         if self.request.user.tipo_usuario == User.ESTUDIANTE:
-            return Clase.clases.filter(
-                estado=Reserva.ACTIVA, estudiante=self.request.user.perfil_estudiante
-            )
+            return Clase.clases.filter(estado=Reserva.ACTIVA, estudiante=self.request.user.perfil_estudiante)
 
         elif self.request.user.tipo_usuario == User.DOCENTE:
-            return Clase.clases.filter(
-                estado=Reserva.ACTIVA, docente=self.request.user.perfil_docente
-            )
+            return Clase.clases.filter(estado=Reserva.ACTIVA, docente=self.request.user.perfil_docente)
 
         elif self.request.user.tipo_usuario == User.TUTOR:
             return Clase.clases.filter(
@@ -68,9 +63,7 @@ class ReservaViewSet(viewsets.GenericViewSet):
     def ultimo(self, request):
         user = self.request.user
         cursos = user.perfil_docente.cursos.values_list("id", flat=True)
-        reserva = Reserva.objects.filter(
-            curso_id__in=cursos, estado=Reserva.PENDIENTE
-        ).last()
+        reserva = Reserva.objects.filter(curso_id__in=cursos, estado=Reserva.PENDIENTE).last()
         serializer = ClaseModelSerializer(reserva)
         return Response(serializer.data)
 
@@ -105,7 +98,7 @@ class OrdenCompraViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
             curso_id = request.data.get("curso_id")
             docente_id = request.data.get("docente_id")
             fechas = request.data.get("fechas")
-            estudiante_id = request.data.get("estudiante_id", False) #El usuario tutor envía este parametro
+            estudiante_id = request.data.get("estudiante_id", False)  # El usuario tutor envía este parametro
             compra = user.crear_orden(curso_id, docente_id, fechas, estudiante_id)
             serializer = ReservaModelSerializer(compra, many=True)
             return Response(serializer.data)
@@ -141,3 +134,15 @@ class OrdenCompraViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
         for reserva in reservas:
             reserva.adjuntar_comprobante_pago(foto_comprobante, medio_pago_id)
         return Response(None, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["POST"])
+    def adjuntar_texto_pago(self, request):
+        # texto_pago = request.data.get("texto_pago")
+        serializer = TextoPagoSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.data
+        nombre_foto = data.pop("nombre_foto")
+        reservas = serializer.context.get("reservas_asociadas")
+        for reserva in reservas:
+            reserva.adjuntar_texto_pago(**data)
+        return Response(None, status=status.HTTP_204_NO_CONTENT)

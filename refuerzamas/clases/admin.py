@@ -319,6 +319,7 @@ class ReservaAdmin(ModelAdmin):
         "docente__user__last_name",
         "curso__materia__nombre",
     ]
+    readonly_fields = ["texto_pago"]
 
 
 # @register(Clase)
