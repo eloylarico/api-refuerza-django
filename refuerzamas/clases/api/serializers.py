@@ -2,6 +2,7 @@
 from rest_framework import serializers
 
 # Model
+
 from refuerzamas.clases.models import (
     Chat,
     ChatUser,
@@ -26,6 +27,7 @@ from refuerzamas.clases.models import (
     TipoPago,
     MedioPago,
 )
+
 from refuerzamas.ciudades.models import Pais, Region, Ciudad
 
 

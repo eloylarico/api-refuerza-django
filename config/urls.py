@@ -13,6 +13,9 @@ from refuerzamas.utils.auth.views import (
     obtain_docente_token,
 )
 
+# djoser
+from django.conf.urls import url
+
 urlpatterns = [
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
@@ -30,6 +33,8 @@ urlpatterns += [
     path("api/auth-token/estudiante_tutor", obtain_estudiante_tutor_token),
     # Admin chat
     path("adminchat/",include(("administrar_chat.urls", "administrar_chat"), namespace="administrar_chat"),),
+    # new Djoser
+    url("api/auth/djoser/", include('djoser.urls')),     
 ]
 
 if settings.DEBUG:
